@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="resume">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="name"/>
+        <xs:element ref="phone_number"/>
+        <xs:element ref="email_address"/>
+        <xs:sequence maxOccurs="unbounded">
+          <xs:element ref="skill"/>
+        </xs:sequence>
+        <xs:sequence maxOccurs="unbounded">
+          <xs:element ref="specialization_group"/>
+        </xs:sequence>
+        <xs:sequence maxOccurs="unbounded">
+          <xs:element ref="company"/>
+        </xs:sequence>
+        <xs:sequence maxOccurs="unbounded">
+          <xs:element ref="staffing_company"/>
+        </xs:sequence>
+        <xs:sequence maxOccurs="unbounded">
+          <xs:element ref="position"/>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="name" type="xs:string"/>
+
+  <xs:element name="phone_number" type="xs:string"/>
+
+  <xs:element name="email_address" type="xs:string"/>
+
+  <xs:element name="skill">
+    <xs:complexType>
+      <xs:attribute name="skill_id" type="xs:ID" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="specialization_group">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element ref="specialization"/>
+      </xs:sequence>
+      <xs:attribute name="label" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="company">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="company_name"/>
+        <xs:element ref="company_location"/>
+      </xs:sequence>
+      <xs:attribute name="company_id" type="xs:ID" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="staffing_company">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="staffing_name"/>
+        <xs:element ref="staffing_location"/>
+      </xs:sequence>
+      <xs:attribute name="staffing_id" type="xs:ID" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="position">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="position_title"/>
+        <xs:element ref="date_started"/>
+        <xs:element ref="date_ended"/>
+        <xs:element ref="position_summary"/>
+      </xs:sequence>
+      <xs:attribute name="position_id" type="xs:ID" use="required"/>
+      <xs:attribute name="company_fk" type="xs:IDREF" use="required"/>
+      <xs:attribute name="staffing_fk" type="xs:IDREF"/>
+      <xs:attribute name="skills_fk" type="xs:IDREFS" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="specialization" type="xs:string"/>
+
+  <xs:element name="company_name" type="xs:string"/>
+
+  <xs:element name="company_location" type="xs:string"/>
+
+  <xs:element name="staffing_name" type="xs:string"/>
+
+  <xs:element name="staffing_location" type="xs:string"/>
+
+  <xs:element name="position_title">
+    <xs:complexType>
+      <xs:attribute name="position_type" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="full_time"/>
+            <xs:enumeration value="contract"/>
+            <xs:enumeration value="freelance"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="date_started">
+    <xs:complexType>
+      <xs:attribute name="month" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="1"/>
+            <xs:enumeration value="2"/>
+            <xs:enumeration value="3"/>
+            <xs:enumeration value="4"/>
+            <xs:enumeration value="5"/>
+            <xs:enumeration value="6"/>
+            <xs:enumeration value="7"/>
+            <xs:enumeration value="8"/>
+            <xs:enumeration value="9"/>
+            <xs:enumeration value="10"/>
+            <xs:enumeration value="11"/>
+            <xs:enumeration value="12"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="year" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="2002"/>
+            <xs:enumeration value="2003"/>
+            <xs:enumeration value="2004"/>
+            <xs:enumeration value="2005"/>
+            <xs:enumeration value="2006"/>
+            <xs:enumeration value="2007"/>
+            <xs:enumeration value="2008"/>
+            <xs:enumeration value="2009"/>
+            <xs:enumeration value="2010"/>
+            <xs:enumeration value="2011"/>
+            <xs:enumeration value="2012"/>
+            <xs:enumeration value="2013"/>
+            <xs:enumeration value="2014"/>
+            <xs:enumeration value="2015"/>
+            <xs:enumeration value="2016"/>
+            <xs:enumeration value="2017"/>
+            <xs:enumeration value="2018"/>
+            <xs:enumeration value="2019"/>
+            <xs:enumeration value="2020"/>
+            <xs:enumeration value="2021"/>
+            <xs:enumeration value="2022"/>
+            <xs:enumeration value="2023"/>
+            <xs:enumeration value="2024"/>
+            <xs:enumeration value="2025"/>
+            <xs:enumeration value="2026"/>
+            <xs:enumeration value="2027"/>
+            <xs:enumeration value="2028"/>
+            <xs:enumeration value="2029"/>
+            <xs:enumeration value="2030"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="date_ended">
+    <xs:complexType>
+      <xs:attribute name="month" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="1"/>
+            <xs:enumeration value="2"/>
+            <xs:enumeration value="3"/>
+            <xs:enumeration value="4"/>
+            <xs:enumeration value="5"/>
+            <xs:enumeration value="6"/>
+            <xs:enumeration value="7"/>
+            <xs:enumeration value="8"/>
+            <xs:enumeration value="9"/>
+            <xs:enumeration value="10"/>
+            <xs:enumeration value="11"/>
+            <xs:enumeration value="12"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="year" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="2002"/>
+            <xs:enumeration value="2003"/>
+            <xs:enumeration value="2004"/>
+            <xs:enumeration value="2005"/>
+            <xs:enumeration value="2006"/>
+            <xs:enumeration value="2007"/>
+            <xs:enumeration value="2008"/>
+            <xs:enumeration value="2009"/>
+            <xs:enumeration value="2010"/>
+            <xs:enumeration value="2011"/>
+            <xs:enumeration value="2012"/>
+            <xs:enumeration value="2013"/>
+            <xs:enumeration value="2014"/>
+            <xs:enumeration value="2015"/>
+            <xs:enumeration value="2016"/>
+            <xs:enumeration value="2017"/>
+            <xs:enumeration value="2018"/>
+            <xs:enumeration value="2019"/>
+            <xs:enumeration value="2020"/>
+            <xs:enumeration value="2021"/>
+            <xs:enumeration value="2022"/>
+            <xs:enumeration value="2023"/>
+            <xs:enumeration value="2024"/>
+            <xs:enumeration value="2025"/>
+            <xs:enumeration value="2026"/>
+            <xs:enumeration value="2027"/>
+            <xs:enumeration value="2028"/>
+            <xs:enumeration value="2029"/>
+            <xs:enumeration value="2030"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="position_summary">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element ref="summary_item"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="summary_item" type="xs:string"/>
+
+</xs:schema>

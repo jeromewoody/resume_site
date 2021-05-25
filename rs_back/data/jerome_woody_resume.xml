@@ -1,0 +1,388 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resume SYSTEM "resume.dtd">
+<resume>
+	<name>Jerome Woody</name>
+	<phone_number>206.651.4031</phone_number>
+	<email_address>woody.jerome@gmail.com</email_address>
+	<skill skill_id="php">PHP</skill>
+	<skill skill_id="codeigniter">CodeIgniter</skill>
+	<skill skill_id="pear">PEAR</skill>
+	<skill skill_id="simpletest">SimpleTest</skill>
+	<skill skill_id="perl">Perl</skill>
+	<skill skill_id="xml">XML</skill>
+	<skill skill_id="xpath">XPath</skill>
+	<skill skill_id="xpointer">XPointer</skill>
+	<skill skill_id="xquery">XQuery</skill>
+	<skill skill_id="html">HTML</skill>
+	<skill skill_id="html5">HTML5</skill>
+	<skill skill_id="xhtml">XHTML</skill>
+	<skill skill_id="xslt">XSLT</skill>
+	<skill skill_id="css">CSS</skill>
+	<skill skill_id="less">LESS</skill>
+	<skill skill_id="javascript">Javascript</skill>
+	<skill skill_id="jquery">JQuery</skill>
+	<skill skill_id="nodejs">Node.js</skill>
+	<skill skill_id="typescript">Typescript</skill>
+	<skill skill_id="sql">SQL</skill>
+	<skill skill_id="mysql">MySQL</skill>
+	<skill skill_id="postgresql">PostgreSQL</skill>
+	<skill skill_id="java">Java</skill>
+	<skill skill_id="java_servlets">Java Servlets</skill>
+	<skill skill_id="jsp">JSP</skill>
+	<skill skill_id="freemarker">Freemarker</skill>
+	<skill skill_id="asp">ASP</skill>
+	<skill skill_id="cold_fusion">Code Fusion</skill>
+	<skill skill_id="sas">SAS</skill>
+	<skill skill_id="ccplus">C/C++</skill>
+	<skill skill_id="csharp">C#</skill>
+	<skill skill_id="tcl">TCL</skill>
+	<skill skill_id="ruby">Ruby</skill>
+	<skill skill_id="r">R</skill>
+	<skill skill_id="python">Python</skill>
+	<skill skill_id="groovy">Groovy</skill>
+	<specialization_group label="Education">
+		<specialization>Syracuse University - BS in Information Management and Technology 1998 - 2002</specialization>
+		<specialization>University of Washington - Graduate Studies in Library and Information Science 2002 - 2004</specialization>
+	</specialization_group>
+	<specialization_group label="Specialties">
+		<specialization>Ability to quickly pick up and adapt to a diverse range of software languages, tools, and development environments.</specialization>
+		<specialization>Advanced writing and communication skills_fk.</specialization>
+		<specialization>Ability to do formal research.</specialization>
+		<specialization>Ability to supply creative solutions to complex problems.</specialization>
+		<specialization>Well versed in Photoshop and other media editing tools.</specialization>
+	</specialization_group>
+	<specialization_group label="E-Commerce Systems">
+		<specialization>Familiar with developing solutions using Magento E-commerse platform (v 1.3 &amp; v 1.10).</specialization>
+	</specialization_group>
+	<specialization_group label="Content Management Systems">
+		<specialization>Familiar with developing with a wide range of CMS solutions including ExpressionEngine, AnswerHub, Zope, Wordpress, and Bricolage.</specialization>
+		<specialization>Created custom plugins and extenstion for ExpressionEngine, Wordpress.</specialization>
+		<specialization>Experience in creating a CMS sytem from scratch and CMS Evaluations.</specialization>
+	</specialization_group>
+	<specialization_group label="Android Software / Mobile Web Development">
+		<specialization>Experience in developing programs and software for the Android mobile platform.</specialization>
+		<specialization>Created Java classes using Android SDK for media playing, SOAP communication and database connectivity.</specialization>
+		<specialization>Experience in creating interactive and adaptive front-end interfaces for webkit based mobile web browsers.</specialization> 
+		<specialization>Experience in remote debugging of mobile websites.</specialization>
+	</specialization_group>
+	<specialization_group label="Social Networks / Cloud Development">
+		<specialization>Experience with working with the Microsoft Azure C# API.</specialization>
+		<specialization>Experience with working with Microsoft Azuare blobs, tables, and intances.</specialization>
+		<specialization>Experience with developing SOAP clients in PHP (NuSOAP).</specialization>
+		<specialization>Experience in use of APIs for Amazon's S3 online storage system.</specialization>
+	</specialization_group>
+	<specialization_group label="Systems Analysis">
+		<specialization>Familiarity with "waterfall" methodology of systems design.</specialization>
+		<specialization>Experience with CASE modeling (ERD, DFD, UML).</specialization>
+		<specialization>Familiarity in qualitative data analysis and coding.</specialization>
+	</specialization_group>
+	<specialization_group label="Library Science / Classification">
+		<specialization>Experience in structured document processing (XML, XML Schema, XSL, XPointer/XPath).</specialization>
+		<specialization>Familiarity with Dublic Core and US-MARC meta-data standards.</specialization>
+		<specialization>Experience in use of meta-data and ontology software (Protegy, XML-Spy).</specialization>
+	</specialization_group>
+	<company company_id="amazon">
+		<company_name>Amazon, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="rational_interaction">
+		<company_name>Rational Interaction, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="river_logic">
+		<company_name>River Logic, Inc.</company_name>
+		<company_location>Bellevue, Wa</company_location>
+	</company>
+	<company company_id="expedia">
+		<company_name>Expedia, Inc.</company_name>
+		<company_location>Bellevue, Wa</company_location>
+	</company>
+	<company company_id="epicenter_networks">
+		<company_name>Epicenter Networks</company_name>
+		<company_location>Lynwood, Wa</company_location>
+	</company>
+	<company company_id="zumiez">
+		<company_name>Zumiez</company_name>
+		<company_location>Lynwood, Wa</company_location>
+	</company>
+	<company company_id="quorum_review">
+		<company_name>Quorum Review, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="ASAALH">
+		<company_name>Association for the Study of African American Life and History</company_name>
+		<company_location>Washington, DC</company_location>
+	</company>
+	<company company_id="medio">
+		<company_name>Medio, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="oclc">
+		<company_name>OCLC, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="zaaz">
+		<company_name>Zaaz, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="seattle_times">
+		<company_name>The Seattle Times Company</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="all_stars_directory">
+		<company_name>All Star Directories, Inc.</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="grist">
+		<company_name>Grist Magazine</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="seattle_university">
+		<company_name>Seattle University</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="seattle_weekly">
+		<company_name>Seattle Weekly</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
+	<staffing_company staffing_id="lg_consulting">
+		<staffing_name>LG Consulting</staffing_name>
+		<staffing_location>Seattle, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="aim_consulting">
+		<staffing_name>AIM Consulting</staffing_name>
+		<staffing_location>Bellevue, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="rylem">
+		<staffing_name>Rylem</staffing_name>
+		<staffing_location>Seattle, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="creative_circle">
+		<staffing_name>Creative Circle</staffing_name>
+		<staffing_location>Seattle, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="greythorn">
+		<staffing_name>Greythorn</staffing_name>
+		<staffing_location>Bellevue, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="parker">
+		<staffing_name>Parker Staffing Services</staffing_name>
+		<staffing_location>Seattle, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="redmond">
+		<staffing_name>Redmond Technology Partners</staffing_name>
+		<staffing_location>Bellevue, Wa</staffing_location>
+	</staffing_company>
+	<staffing_company staffing_id="aditi">
+		<staffing_name>Aditi Staffing</staffing_name>
+		<staffing_location>Bellevue, Wa</staffing_location>
+	</staffing_company>
+	<position position_id="amz2019" company_fk="amazon" staffing_fk="creative_circle" skills_fk="html jsp css javascript java_servlets nodejs">
+		<position_title position_type="contract">Web Developer Engineer, Sustainability</position_title>
+		<date_started month="7" year="2019" />
+		<date_ended month="2" year="2020" />
+		<position_summary>
+			<summary_item>Responsible for front-end development of Amazon “Second Chance” portal and “The Climate Pledge” website.</summary_item>
+			<summary_item>Created content widgets that are now embedded in Amazon.com “Your Order’s” page, a highly visible part of Amazon’s user experience.</summary_item>
+			<summary_item>Worked with team designers and software developers to create interactive, responsive web components using JSP, Spring MVC, SCSS, and ReactJS, along with internal Amazon technologies.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="amz0218" company_fk="amazon" staffing_fk="aditi" skills_fk="html css xml xpath xslt javascript ruby python">
+		<position_title position_type="contract">Web Developer, Kindle Dictionary Team</position_title>
+		<date_started month="2" year="2018" />
+		<date_ended month="2" year="2019" />
+		<position_summary>
+			<summary_item>Developed software tools in Ruby, Node.js, XPath and XSLT for processing and modifying large  XML files to facilitate in content workflow of interactive dictionaries for the Kindle family of devices and mobile apps.</summary_item>
+			<summary_item>Preformed data metrics on XML files, compiled reports for team manager and QAs.</summary_item>
+			<summary_item>Troubleshooted customer issues with dictionary functionality 
+on Kindle family of devices, usually involving reproducing the issue and then forwarding 
+the trouble ticket to the appropriate team.</summary_item>
+			<summary_item>Work along with language expert QAs when working with 
+bilingual dictionaries (Arabic, Hindi, Chinese).</summary_item>
+			<summary_item>Preformed 2nd tier customer support and troubleshooting on 
+issues involving the dictionary feature in Kindle apps and devices.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="rat0917" company_fk="rational_interaction" skills_fk="python sql">
+		<position_title position_type="freelance">Python Developer</position_title>
+		<date_started month="9" year="2017" />
+		<date_ended month="10" year="2017" />
+		<position_summary>
+			<summary_item>Created python scripts for extracting Facebook and Twitter ad metrics and importing them into an SQL Server database.</summary_item>
+			<summary_item>Worked with Facebook and Twitter marketing/ads APIs.</summary_item>
+			<summary_item>Worked on tasks assigned to me by the project lead (via JIRA tickets).</summary_item>
+			<summary_item>Wrote code and pushed completed code to the team's GIT repository.</summary_item>
+			<summary_item>Wrote unit tests for code.</summary_item>
+			<summary_item>Participated in daily SCRUM stand ups (either in person or remotely).</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="riv0616" company_fk="river_logic" skills_fk="javascript typescript csharp css less html">
+		<position_title position_type="full_time">Engineer</position_title>
+		<date_started month="6" year="2016" />
+		<date_ended month="7" year="2017" />
+		<position_summary>
+			<summary_item>Worked as part of the engineering team to create features for their SaaS platform, EO+.</summary_item>
+			<summary_item>Specialized in creating dynamic, robust UI using current generation web technologies (Typescript, Knockout, LESS).</summary_item>
+			<summary_item>Created sophisticated front end code using Ajax to connect to product RESTful API.</summary_item>
+			<summary_item>Created Javascript unit tests using Jasmine.js framework.</summary_item>
+			<summary_item>Created business logic as part of a SOA framework, including web services using C#, including writing code to connect to Microsoft Azure.</summary_item>
+			<summary_item>Build complex SQL queries and stored procedures for Microsoft SQL Server.</summary_item>
+			<summary_item>Participated in collaborative team workflows like SCRUM meetings, peer programming and code reviews.</summary_item>
+			<summary_item>Worked with users and key stakeholders on requirements gathering and bug resolution.</summary_item>
+		</position_summary>
+		</position>
+	<position position_id="amz0815" company_fk="amazon" staffing_fk="creative_circle" skills_fk="javascript html css freemarker java"> 	
+		<position_title position_type="contract">Web Developer, Amazon Game Studios</position_title>
+		<date_started month="8" year="2015" />
+		<date_ended month="1" year="2016" />
+		<position_summary>
+			<summary_item>Developed front end templates and code for upcoming game developer support forums site.</summary_item>
+			<summary_item>Implemented specifications based on team designer’s wireframes and user stories.</summary_item>
+			<summary_item>Created templates based on HTML, CSS, LESS, Bootstrap Framework and Freemarker Java template engine.</summary_item>
+			<summary_item>Site UI developed included landing pages, discussion threads, discussion posts, user profile pages, global header and global footer.</summary_item>
+			<summary_item>Developed code in Javascript/JQuery to manage site responsiveness, form validation, form submission and access to site date via a RESTful API.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="exp0814" company_fk="expedia" staffing_fk="aim_consulting" skills_fk="javascript html css perl jquery">
+		<position_title position_type="contract">Web Developer, Egencia Brand</position_title>
+		<date_started month="8" year="2014" />
+		<date_ended month="5" year="2015" />
+		<position_summary>
+			<summary_item>“Modernizing” Front End UI of Business Travel brand using HTML5 and CSS3.</summary_item>
+			<summary_item>Served as primary developer for implementing new site design and site navigation.</summary_item>
+			<summary_item>Overhauled site forms, search result pages and itinerary pages.</summary_item>
+			<summary_item>Created front end code that needed to be visually consistent with older browsers  (IE 6/7).</summary_item>
+			<summary_item>Troubleshoot legacy (C-Based) content management system and retrofitting it to work with modern Web Browsers.</summary_item>
+			<summary_item>Created scripts in perl and python to automate search/replace process in codebase.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="exp1113" company_fk="expedia" staffing_fk="aim_consulting" skills_fk="javascript html css freemarker jquery">
+		<position_title position_type="contract">Web Developer, Creative and Production Services</position_title>
+		<date_started month="11" year="2013" />
+		<date_ended month="6" year="2014" />
+		<position_summary>
+			<summary_item>Developed Front end solutions for various points of sales throughout the Expedia website.</summary_item>
+			<summary_item>Produced working, high profile landing pages and promotion sites that are connected to Expedia’s Global Deals Engine while under tight development deadlines (avg 5-10 hours dev time).</summary_item>
+			<summary_item>Served as technical lead in various campaigns, providing both guidance and implementation planning.</summary_item>
+			<summary_item>Developed design responsive front-end systems using HTML5, CSS3, node.js, backbone.js, jquery and various web frameworks.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="epi0113" company_fk="epicenter_networks" skills_fk="php mysql html css javascript jquery">
+		<position_title position_type="full_time">Engineer, Operations</position_title>
+		<date_started month="1" year="2013" />
+		<date_ended month="8" year="2013" />
+		<position_summary>
+			<summary_item>Responsibilities included software development and infrastructure (operations) support.</summary_item>
+			<summary_item>Contributed to varied dev and ops initiatives within the company.</summary_item>
+			<summary_item>Developed new features and solutions for companies internal web based management system, written in object based php / mysql with JQuery / Ajax driven frontend.</summary_item>
+			<summary_item>Created tool for analysis and real time graphing of large amounts of log data (1,000,000+ records daily) using object based php and javascript based data representation library.</summary_item>
+			<summary_item>Integrated external SEM data query and reporting via RESTful API.</summary_item>
+			<summary_item>Created database driven UI elements / forms for company’s internal management system.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="zum0412" company_fk="zumiez" staffing_fk="lg_consulting" skills_fk="php html css javascript">
+		<position_title position_type="contract">Web Developer, Marketing Systems</position_title>
+		<date_started month="4" year="2012" />
+		<date_ended month="1" year="2013" />
+		<position_summary>
+			<summary_item>Responsible for implementing consumer loyalty system for an upcoming version of the Zumiez.com.</summary_item>
+			<summary_item>Worked with vendor and internal development staff to implement features and investigate issues.</summary_item>
+			<summary_item>Developed new features to related mobile web app used to sign up new members of loyalty program.</summary_item>
+			<summary_item>Wrote software tools to facilitate data analysis, data warehousing of member data.</summary_item>
+			<summary_item>Responsible for managing and visual upkeep of Vendor developed loyalty program portal.</summary_item>
+			<summary_item>Worked on various Front end features for upcoming version of Zumiez.com using Magento 1.10.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="quo0811" company_fk="quorum_review" staffing_fk="aim_consulting" skills_fk="html css javascript">
+		<position_title position_type="contract">Web Developer, User Interface</position_title>
+		<date_started month="8" year="2011" />
+		<date_ended month="4" year="2012" />
+		<position_summary>
+			<summary_item>Implemented UI layer based on business needs and wireframes provided by consulting design firm.</summary_item>
+			<summary_item>Developed both frontend and back-end JavaScript code, along with CSS 2, vendor templating systems.</summary_item>
+			<summary_item>Worked in highly strict Agile environment.</summary_item>
+			<summary_item>Communicated with other development teams, QA, business stakeholders and vendors.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="asa0711" company_fk="ASAALH" skills_fk="python sql">
+		<position_title position_type="freelance">Data Analyst / Programmer</position_title>
+		<date_started month="7" year="2011" />
+		<date_ended month="2" year="2012" />
+		<position_summary>
+			<summary_item>Facilitated in migrated association membership data from legacy (Access) database to enterprise based CRM (Avectra NetFORUM).</summary_item>
+			<summary_item>Created automation software in Python and Mysql to streamline the migration process.</summary_item>
+			<summary_item>Provided technical guidance to client (ASALH) and vendor (Avectra) via remote conference meetings on various data migration issues.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="ocl0510" company_fk="oclc" staffing_fk="parker" skills_fk="java javascript ruby python tcl groovy">
+		<position_title position_type="contract">Software Developer</position_title>
+		<date_started month="5" year="2010" />
+		<date_ended month="10" year="2010" />
+		<position_summary>
+			<summary_item>Participated in the development of a multi-tier, plug-in based Data exchange system in Java.</summary_item>
+			<summary_item>Designed, developed, and implemented autonomous software agents for interaction with terminal (Telnet and SSH connected) based Integrated Library Systems using TCL, Java and Groovy.</summary_item>
+			<summary_item>Created SOAP based data communication libraries in Java, Groovy, Ruby, PERL and Python.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="zaa0110" company_fk="zaaz" staffing_fk="greythorn" skills_fk="php html css javascript">
+		<position_title position_type="contract">Web Application Developer</position_title>
+		<date_started month="1" year="2010" />
+		<date_ended month="4" year="2010" />
+		<position_summary>
+			<summary_item>Created Expressionengine Templates and Plugins in PHP.</summary_item>
+			<summary_item>Researched and Implemented Modules based on Zaaz's client's need.</summary_item>
+			<summary_item>Developed automated MySQL database backup system.</summary_item>
+			<summary_item>Participated in creating specification documents for project.</summary_item>
+			<summary_item>Advised Zaaz developers and project managers on various open source development issues.</summary_item>
+		</position_summary>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+	</position>
+	<position position_id="sea1209" company_fk="seattle_times" staffing_fk="rylem" skills_fk="html css">
+		<position_title position_type="contract">Web Developer</position_title>
+		<date_started month="12" year="2009" />
+		<date_ended month="1" year="2010" />
+		<position_summary>
+			<summary_item>Created HTML and CSS based User interface based on UI Wireframes.</summary_item>
+			<summary_item>Advised on CSS and UI Best practices.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="all0809" company_fk="all_stars_directory" staffing_fk="lg_consulting" skills_fk="html css javascript">
+		<position_title position_type="contract">Application Developer</position_title>
+		<date_started month="8" year="2009" />
+		<date_ended month="9" year="2009" />
+		<position_summary>
+			<summary_item>Migrated Files from Web to content management system based on OCMS.</summary_item>
+			<summary_item>Edited and created HTML, CSS, and javascript code to insure code migrated into CMS system was compliant to XHTML standards, along with style standards of the company.</summary_item>
+			<summary_item>Created HTML layout using The Yahoo! User Interface Library (YUI).</summary_item>
+			<summary_item>Troubleshooting existing code for layout deficits and software errors.</summary_item>
+		</position_summary>
+		</position>
+	<position position_id="gri1106" company_fk="grist" skills_fk="html css javascript perl php sql mysql postgresql codeigniter xml">
+		<position_title position_type="full_time">Web Developer</position_title>
+		<date_started month="11" year="2006" />
+		<date_ended month="4" year="2009" />
+		<position_summary>
+			<summary_item>Created Dynamic pages and web applications using PHP 5, PERL, JavaScript.</summary_item>
+			<summary_item>Created Static pages using HTML 4.01 Transitional and XHTML 1.0.</summary_item>
+			<summary_item>Created Style sheets using CSS 2.</summary_item>
+			<summary_item>Used Cloud technologies for web applications and cloud storage with Amazon Simple Storage System (S3) and Yahoo Pipes.</summary_item>
+			<summary_item>Developed innovative interface for the site's search engine using Swish-e.</summary_item>
+			<summary_item>Responsible for fixing website bugs and maintaining the site's operations in an 24/7 environment.</summary_item>
+			<summary_item>Responsible for creating new templates and modules for posting content on website and sending formatted email newsletters.</summary_item>
+			<summary_item>Created customized software tools for Editorial, Marketing, Advertising and Development departments.</summary_item>
+			<summary_item>Lead organization in creating innovative solutions to distribute Grist content to multiple audiences on multiple platforms (Web, email, social networks).</summary_item>
+			<summary_item>Participated in creating Grist content for website, posting articles regarding energy and technology issues.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="seu082005" company_fk="seattle_university" skills_fk="html css xml xpath xpointer xslt php mysql java">
+		<position_title position_type="full_time">Software Developer - Swlists.com</position_title>
+		<date_started month="2" year="2005" />
+		<date_ended month="8" year="2005" />
+		<position_summary>
+			<summary_item>Created entire site using dynamic web technologies using PHP and MySQL.</summary_item>
+			<summary_item>Created style sheets for site using CSS.</summary_item>
+			<summary_item>Developed system functionality and design based on rigorous analysis of competing websites and related usability data.</summary_item>
+			<summary_item>Software code has been utilized by the Seattle Weekly, Minneapolis City Pages, and other Village Voice Media owned newspapers.</summary_item>
+			<summary_item>Served as core developer for Swlists.com website, developing systems code for all three tiers of the project (database, middleware code, and interface code).</summary_item>
+		</position_summary>
+	</position>
+</resume>

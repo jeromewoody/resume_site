@@ -1,0 +1,41 @@
+<!--
+		Resume XML Data Model
+		Version: 1.0
+		Author: Jerome Woody
+-->
+<!ELEMENT resume (name, phone_number, email_address, skill+, specialization_group+, company+, staffing_company+, position+)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT phone_number (#PCDATA)>
+<!ELEMENT email_address (#PCDATA)>
+<!ELEMENT skill  (#PCDATA)>
+<!ATTLIST skill skill_id ID #REQUIRED>
+<!ELEMENT specialization_group (specialization+)>
+<!ATTLIST specialization_group label CDATA #REQUIRED>
+<!ELEMENT specialization (#PCDATA)>
+<!ELEMENT company (company_name, company_location)>
+<!ATTLIST company company_id ID #REQUIRED>
+<!ELEMENT company_name (#PCDATA)>
+<!ELEMENT company_location (#PCDATA)>
+<!ELEMENT staffing_company (staffing_name, staffing_location)>
+<!ATTLIST staffing_company staffing_id ID #REQUIRED>
+<!ELEMENT staffing_name (#PCDATA)>
+<!ELEMENT staffing_location (#PCDATA)>
+<!ELEMENT position (position_title, date_started, date_ended, position_summary)>
+<!ATTLIST position position_id ID #REQUIRED>
+<!ATTLIST position company_fk IDREF #REQUIRED>
+<!ATTLIST position staffing_fk IDREF #IMPLIED>
+<!ATTLIST position skills_fk IDREFS #REQUIRED>
+<!ELEMENT position_title (#PCDATA)>
+<!ATTLIST position_title position_type (full_time | contract | freelance) #REQUIRED>
+<!ELEMENT date_started EMPTY>
+<!ATTLIST date_started 
+             month (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) #REQUIRED 
+					   year (2002 | 2003 | 2004 | 2005 | 2006 | 2007 | 2008 | 2009 | 2010 | 2011 | 2012 | 2013 | 2014 | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 | 2027 | 2028 | 2029 | 2030) #REQUIRED
+> 
+<!ELEMENT date_ended EMPTY>
+<!ATTLIST date_ended 
+           month (1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12) #REQUIRED 
+					 year (2002 | 2003 | 2004 | 2005 | 2006 | 2007 | 2008 | 2009 | 2010 | 2011 | 2012 | 2013 | 2014 | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 | 2027 | 2028 | 2029 | 2030) #REQUIRED
+>
+<!ELEMENT position_summary (summary_item+)>
+<!ELEMENT summary_item (#PCDATA)>
