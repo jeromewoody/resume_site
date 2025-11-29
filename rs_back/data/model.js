@@ -1,102 +1,116 @@
-/** 
- * Model.js
- * Version: 1.0.0
- * Description: Contains resume data model.
- * **/
+/**
+ * model.js
+ * ---------
+ * A clean, single‑pass parser that turns a resume XML document into a
+ * JavaScript object that is ready for consumption by a React front‑end.
+ *
+ * The code:
+ *   • Parses the whole XML file only once.
+ *   • Uses `xml2js` with `explicitArray: false` so that every element
+ *     that occurs only once is returned as a plain value, not an array.
+ *   • Normalises the `<summary_item>` values into a simple `summary_items`
+ *     array for each position.
+ *   • Exposes a promise‑based `build()` method that resolves to the
+ *     fully‑built model.
+ *
+ * Usage (in a Node app, e.g. a Next.js getStaticProps):
+ *
+ *   const { build } = require('./model');
+ *   const resume = await build('/path/to/jerome_woody_resume.xml');
+ *   console.log(resume.positions[0].summary_items); // -> ['Bullet 1', 'Bullet 2']
+ *
+ * The exported object structure matches the JSON you posted in the first
+ * message, so the React component can work with it out of the box.
+ */
 
-var fs = require('fs'),
-xpath = require('xpath'),
-dom = require('xmldom').DOMParser,
-parseString = require('xml2js').parseString,
-util = require('util');
+const fs = require('fs');
+const xpath = require('xpath');
+const { DOMParser } = require('xmldom');
+const { parseStringPromise } = require('xml2js');
+const util = require('util');
 
-const deserialize = (xml_string) => {
+const loadXml = (file) => new DOMParser().parseFromString(fs.readFileSync(file, 'utf-8'), 'text/xml');
 
-    parseString(xml_string, (err, result) => {
-        if(!err) {
-            console.log(util.inspect(result, false, null));
-        }
-    });
+/**
+ * Helper that extracts the first matching text node from an XPath query.
+ */
+const xpathText = (query, node) => {
+  const result = xpath.select(query, node);
+  return result && result[0] ? result[0].nodeValue : null;
+};
+
+/**
+ * Main build function.
+ * @param {string} filePath Path to the XML resume file.
+ * @returns {Promise<object>}  The parsed resume model.
+ */
+async function build(filePath) {
+  const doc = loadXml(filePath);
+
+  // ---------- Contact Info ----------
+  const contact_info = {
+    name: xpathText('//name/text()', doc),
+    phone: xpathText('//phone_number/text()', doc),
+    email: xpathText('//email_address/text()', doc),
+  };
+
+  // ---------- Skills ----------
+  const skills = xpath.select('//skill', doc).map((node) => ({
+    skill_id: node.getAttribute('skill_id'),
+    skill_value: xpathText('./text()', node),
+  }));
+
+  // ---------- Specialization Groups ----------
+  const specialization_groups = xpath
+    .select('//specialization_group', doc)
+    .map((node) => ({
+      specialization_groups_label: node.getAttribute('label'),
+      specializations: xpath
+        .select('./specialization/text()', node)
+        .map((n) => n.nodeValue),
+    }));
+
+  // ---------- Companies ----------
+  const companies = xpath
+    .select('//company', doc)
+    .map((node) => ({
+      company_id: node.getAttribute('company_id'),
+      company_name: xpathText('./company_name/text()', node),
+      company_location: xpathText('./company_location/text()', node),
+    }));
+
+  // ---------- Positions ----------
+  const positionsXml = xpath.select('//position', doc);
+
+  // Use xml2js with explicitArray: false to flatten single‑occurrence elements
+  const parseOpts = { explicitArray: false, trim: true, normalize: true };
+
+  const positions = await Promise.all(
+    positionsXml.map((node) =>
+      parseStringPromise(node.toString(), parseOpts).then((obj) => {
+        // obj is already the <position> object
+        const pos = obj.position; // keep only the <position> element
+
+        // Normalise the summary items – they are now a plain array of strings
+        const summary = pos.position_summary?.summary_item ?? [];
+        pos.summary_items = Array.isArray(summary) ? summary.map(String) : [];
+
+        // Remove the original nested summary structure to keep the shape
+        delete pos.position_summary;
+
+        return pos;
+      })
+    )
+  );
+
+  // ---------- Return full model ----------
+  return {
+    contact_info,
+    skills,
+    specialization_groups,
+    companies,
+    positions,
+  };
 }
 
-// Helper Function to inspect contents of an object
-const inspect = (obj) => {
-    console.log(typeof(obj));
-    console.log(util.inspect(obj, false, null));
-    return obj;
-}
-
-const filterPositions = (type, attrib) => {
-    var xpath = '';
-    switch(type.toLowerCase) {
-        case "company":
-            xpath = `//position/[@company_fk='${attrib}']`;
-        case "staffing":
-            xpath = `//position/[@staffing_fk='${attrib}']`;
-        case "position_type":
-            xpath = `//position/position_title[@position_type='${attrib}']/parent::position`;
-    }
-}
-
-const getChildrenAsAarray = (obj) => {
-    let childrenArray = [];
-    obj.map(child => childrenArray.push(child.data));
-    return childrenArray;
-}
-
-const resume_xml_file='/home/jerome/resume_site/rs_back/data/jerome_woody_resume.xml';
-
-const resume_xml_string = fs.readFileSync(resume_xml_file, 'utf-8');
-const doc = new dom().parseFromString(resume_xml_string);
-
-// Get Header info 
-
-module.exports.contact_info = {};
-module.exports.contact_info.name = xpath.select("//name", doc)[0].firstChild.data;
-module.exports.contact_info.phone = xpath.select("//phone_number", doc)[0].firstChild.data; 
-module.exports.contact_info.email = xpath.select("//email_address", doc)[0].firstChild.data;
-
-
-module.exports.skills = [];
-let skills = xpath.select("//skill", doc);
-
-for(let i=0; i < skills.length; i++){
-    let skills_fragment = new dom().parseFromString(skills[i].toString());
-    
-    module.exports.skills.push({skill_id : xpath.select("//skill/@skill_id", skills_fragment)[0].value,
-                   skill_value : xpath.select("//skill/text()", skills_fragment).toString()});
-}
-
-module.exports.specialization_groups = [];
-
-let specialization_groups = xpath.select("//specialization_group", doc);
-
-for(let i=0; i < specialization_groups.length; i++) {
-    let specialization_group_fragment = new dom().parseFromString(specialization_groups[i].toString());
-    
-    module.exports.specialization_groups.push({specialization_groups_label: xpath.select("//specialization_group/@label", specialization_group_fragment)[0].value,
-                                 specializations: getChildrenAsAarray(xpath.select("//specialization_group/specialization/text()", specialization_group_fragment))});                                 
-}
-module.exports.companies = [];
-let companies = xpath.select("//company", doc);
-for(let i=0; i < companies.length; i++) {
-    let company_fragment = new dom().parseFromString(companies[i].toString());
-    
-    module.exports.companies.push({company_id: xpath.select("//company/@company_id", company_fragment)[0].value,
-    company_name: xpath.select("//company/company_name/text()", company_fragment).toString(),
-    company_location: xpath.select("//company/company_location/text()", company_fragment).toString()});
-}
-
-module.exports.positions = [];
-let positions = xpath.select("//position", doc);
-
-for(let i=0; i < positions.length; i++) {
-    parseString(positions[i].toString(), (err, result) => {
-        if(!err) {
-            module.exports.positions.push(result);
-        }
-    });
-}
-
-//console.log(util.inspect(m, false, null));
-//module.export m;
+module.exports = { build };

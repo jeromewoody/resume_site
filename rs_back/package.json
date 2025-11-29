@@ -4,13 +4,15 @@
   "description": "Server for Resume Site",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "validate-xml": "node validate-xml.js"
   },
   "author": "Jerome Woody",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.0",
-    "xml2js": "^0.4.19",
+    "xml2js": "^0.4.23",
     "xmldom": "^0.1.27",
     "xpath": "0.0.27"
   }

@@ -40,6 +40,7 @@
 	<skill skill_id="r">R</skill>
 	<skill skill_id="python">Python</skill>
 	<skill skill_id="groovy">Groovy</skill>
+	<skill skill_id="react">React</skill>
 	<specialization_group label="Education">
 		<specialization>Syracuse University - BS in Information Management and Technology 1998 - 2002</specialization>
 		<specialization>University of Washington - Graduate Studies in Library and Information Science 2002 - 2004</specialization>
@@ -145,6 +146,10 @@
 		<company_name>Seattle Weekly</company_name>
 		<company_location>Seattle, Wa</company_location>
 	</company>
+	<company company_id="discogs">
+		<company_name>Discogs</company_name>
+		<company_location>Beaverton, Or</company_location>
+	</company>
 	<staffing_company staffing_id="lg_consulting">
 		<staffing_name>LG Consulting</staffing_name>
 		<staffing_location>Seattle, Wa</staffing_location>
@@ -177,6 +182,17 @@
 		<staffing_name>Aditi Staffing</staffing_name>
 		<staffing_location>Bellevue, Wa</staffing_location>
 	</staffing_company>
+	<position position_id="dis2022" company_fk="discogs" skills_fk="html react css javascript python nodejs xml">
+		<position_title position_type="full_time">Sr. Web Developer, UX</position_title>
+		<date_started month="1" year="2022" />
+		<position_summary>
+			<summary_item>Help greately expand company's internal React Component library</summary_item>
+			<summary_item>Contributed to UX feature development and issue resolution on Discogs Web Site.</summary_item>
+			<summary_item>Contributed to UX feature development and issue resolutions for Discogs Mobile App for iOS and Android (React Native)</summary_item>
+			<summary_item>Provided leadership on Front End delovepment, Accessability and Use of Generative AI</summary_item>
+			<summary_item>Provied Peer coaching via a series of structured educational presentations and through a weekly meeting about Front End development which was widely attended across the company</summary_item>
+		</position_summary>
+	</position>
 	<position position_id="amz2019" company_fk="amazon" staffing_fk="creative_circle" skills_fk="html jsp css javascript java_servlets nodejs">
 		<position_title position_type="contract">Web Developer Engineer, Sustainability</position_title>
 		<date_started month="7" year="2019" />

@@ -20,7 +20,7 @@
 <!ATTLIST staffing_company staffing_id ID #REQUIRED>
 <!ELEMENT staffing_name (#PCDATA)>
 <!ELEMENT staffing_location (#PCDATA)>
-<!ELEMENT position (position_title, date_started, date_ended, position_summary)>
+<!ELEMENT position (position_title, date_started, date_ended?, position_summary)>
 <!ATTLIST position position_id ID #REQUIRED>
 <!ATTLIST position company_fk IDREF #REQUIRED>
 <!ATTLIST position staffing_fk IDREF #IMPLIED>
