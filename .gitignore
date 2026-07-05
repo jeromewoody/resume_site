@@ -1,5 +1,4 @@
 # Dependencies
-/rs_front/node_modules
 /rs_back/node_modules
 node_modules/
 jspm_packages/
@@ -8,8 +7,6 @@ bower_components
 .pnp.js
 
 # Production build files
-/rs_front/dist
-/rs_front/build
 /var/www/files/resume_site
 build/Release
 dist
@@ -52,13 +49,12 @@ pids
 *~
 .DS_Store
 Thumbs.db
-
+.kilo/
 # Test Coverage
 coverage
 *.lcov
 .nyc_output
 lib-cov
-/rs_front/__tests__/__snapshots__
 /rs_back/__tests__/__snapshots__
 
 # Cache directories

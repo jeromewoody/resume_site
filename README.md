@@ -1,41 +1,33 @@
 # Interactive Resume Site
 
-A dynamic resume website built with React and D3.js, backed by an Express.js server using XML data.
+A server-rendered interactive resume website built with Express.js and HTMX, backed by XML data.
 
 ## Project Structure
 
 - `rs_back/`: Express.js backend server
   - XML-based resume data model
-  - RESTful API endpoints
-  - Data processing utilities
+  - EJS template rendering
+  - HTMX-driven dynamic filtering
+  - Dual-mode API (HTML fragments + JSON)
 
-- `rs_front/`: React.js frontend
-  - Interactive D3.js visualizations
-  - Component-based UI
-  - Responsive design
+- `rs_front/`: Static frontend assets
+  - CSS styles served by Express
 
 ## Technologies Used
 
-- Frontend: React, D3.js
-- Backend: Express.js
+- Frontend: HTMX, vanilla CSS
+- Backend: Express.js, EJS
 - Data: XML, XPath
-- Build Tools: Webpack, Babel
 
 ## Setup
 
-### Backend
 ```bash
 cd rs_back
 npm install
 node controller.js
 ```
 
-### Frontend
-```bash
-cd rs_front
-npm install
-npm run build
-```
+Then open `http://localhost:3001` in your browser.
 
 ## API Endpoints
 
