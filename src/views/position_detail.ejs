@@ -1,43 +1,83 @@
-<%- include('layout', {
-  title: getPositionTitle(position) || 'Position Detail',
-  body: `<%- include('header', { contact_info: contact_info, escapeHtml: escapeHtml }) %>
+<%
+  var posId = position.$.position_id;
+  var companyFk = position.$.company_fk;
+  var staffingFk = position.$.staffing_fk;
+  var skillsFk = position.$.skills_fk;
 
-<section class="experience-section">
-  <h2 class="section-title">Position Detail</h2>
+  var titleObj = position.position_title;
+  if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
+  var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
+  var posTitle = titleObj._ || '';
 
-  <%
-    var posId = position.$.position_id;
-    var companyFk = position.$.company_fk;
-    var staffingFk = position.$.staffing_fk;
-    var skillsFk = position.$.skills_fk;
+  var dateStarted = position.date_started;
+  if (Array.isArray(dateStarted)) { dateStarted = dateStarted[0]; }
+  var dateEnded = position.date_ended;
+  if (dateEnded) {
+    if (Array.isArray(dateEnded)) { dateEnded = dateEnded[0]; }
+  }
 
-    var titleObj = position.position_title;
-    if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
-    var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
-    var posTitle = titleObj._ || '';
+  var skills = getSkillsForPosition(skillsFk);
+  var companyName = getCompanyName(companyFk);
+  var staffingName = getStaffingName(staffingFk);
+%>
 
-    var dateStarted = position.date_started;
-    if (Array.isArray(dateStarted)) { dateStarted = dateStarted[0]; }
-    var dateEnded = position.date_ended;
-    if (dateEnded) {
-      if (Array.isArray(dateEnded)) { dateEnded = dateEnded[0]; }
-    }
+<article id="card-<%= posId %>" class="position-card position-card--expanded">
+  <div class="position-content">
+    <header class="position-header">
+      <h3 class="position-title"><%= escapeHtml(posTitle) %></h3>
+      <div class="position-company">
+        <span class="company-name"><%= escapeHtml(companyName) %></span>
+        <% if (staffingName) { %>
+          <span class="staffing-separator">via</span>
+          <span class="staffing-name"><%= escapeHtml(staffingName) %></span>
+        <% } %>
+      </div>
+    </header>
 
-    var skills = getSkillsForPosition(skillsFk);
-    var companyName = getCompanyName(companyFk);
-    var staffingName = getStaffingName(staffingFk);
-  %>
+    <div class="employment-details">
+      <div class="duration">
+        <span class="duration-label">Duration: </span>
+        <span class="date-range">
+          <time class="date-start"><%= formatDate(dateStarted) %></time>
+          <span class="date-separator"> – </span>
+          <time class="date-end"><%= dateEnded ? formatDate(dateEnded) : 'Present' %></time>
+        </span>
+      </div>
+      <div class="employment-type">
+        <span class="type-label">Employment Type: </span>
+        <span class="type-value"><%= formatType(posType) %></span>
+      </div>
+    </div>
 
-  <%- include('position_card', {
-    posTitle: posTitle,
-    companyName: companyName,
-    staffingName: staffingName,
-    dateStarted: dateStarted,
-    dateEnded: dateEnded,
-    positionType: posType,
-    skills: skills,
-    summaryItems: position.summary_items
-  }) %>
-</section>
-  `
-}) %>
+    <% if (skills && skills.length > 0) { %>
+    <div class="skills-section">
+      <h4 class="skills-title">Technologies &amp; Skills</h4>
+      <div class="skills-list">
+        <% skills.forEach(function(s) { %>
+          <span class="skill-tag" hx-get="/api/positions/by-skill/<%= s.skill_id %>" hx-target="#results" hx-swap="outerHTML" style="cursor:pointer"><%= escapeHtml(s.skill_value) %></span>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (position.summary_items && position.summary_items.length > 0) { %>
+    <div class="summary-section">
+      <h4 class="summary-title">Key Responsibilities &amp; Achievements</h4>
+      <ul class="summary-list">
+        <% position.summary_items.forEach(function(item) { %>
+          <li class="summary-item"><%= escapeHtml(item) %></li>
+        <% }) %>
+      </ul>
+    </div>
+    <% } %>
+
+    <div class="position-details-toggle">
+      <span class="details-link details-link--collapse"
+            hx-get="/api/position/<%= posId %>/summary"
+            hx-target="#card-<%= posId %>"
+            hx-swap="outerHTML">
+        &uarr; Show Less
+      </span>
+    </div>
+  </div>
+</article>

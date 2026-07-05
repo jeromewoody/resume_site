@@ -170,6 +170,8 @@ application.listen(3001, () => {
 // Helper: check if request wants HTML
 function wantsHtml(req) {
   var accept = req.headers.accept || '';
+  // HTMX 2.x may not send Accept: text/html, but always sends hx-request/hx-Request
+  if (req.headers['hx-request'] === 'true' || req.headers['hx-request'] === '1') return true;
   return accept.includes('text/html') && !accept.includes('application/json');
 }
 
