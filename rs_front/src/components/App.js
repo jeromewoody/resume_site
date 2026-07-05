@@ -10,7 +10,7 @@ const App = () => {
     useEffect(() => {
         const fetchResumeData = async () => {
             try {
-                const response = await fetch('http://watersofnewyork.net:3001');
+                const response = await fetch('http://localhost:3001');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

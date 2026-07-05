@@ -1,0 +1,43 @@
+<%- include('layout', {
+  title: getPositionTitle(position) || 'Position Detail',
+  body: `<%- include('header', { contact_info: contact_info, escapeHtml: escapeHtml }) %>
+
+<section class="experience-section">
+  <h2 class="section-title">Position Detail</h2>
+
+  <%
+    var posId = position.$.position_id;
+    var companyFk = position.$.company_fk;
+    var staffingFk = position.$.staffing_fk;
+    var skillsFk = position.$.skills_fk;
+
+    var titleObj = position.position_title;
+    if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
+    var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
+    var posTitle = titleObj._ || '';
+
+    var dateStarted = position.date_started;
+    if (Array.isArray(dateStarted)) { dateStarted = dateStarted[0]; }
+    var dateEnded = position.date_ended;
+    if (dateEnded) {
+      if (Array.isArray(dateEnded)) { dateEnded = dateEnded[0]; }
+    }
+
+    var skills = getSkillsForPosition(skillsFk);
+    var companyName = getCompanyName(companyFk);
+    var staffingName = getStaffingName(staffingFk);
+  %>
+
+  <%- include('position_card', {
+    posTitle: posTitle,
+    companyName: companyName,
+    staffingName: staffingName,
+    dateStarted: dateStarted,
+    dateEnded: dateEnded,
+    positionType: posType,
+    skills: skills,
+    summaryItems: position.summary_items
+  }) %>
+</section>
+  `
+}) %>

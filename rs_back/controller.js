@@ -1,159 +1,636 @@
 var express = require('express');
-const cors = require('cors')
+var path = require('path');
+var fs = require('fs');
+const cors = require('cors');
+const ejs = require('ejs');
 var application = express();
+
+// EJS setup
+application.set('view engine', 'ejs');
+application.set('views', path.join(__dirname, 'views'));
+application.use(express.urlencoded({ extended: true }));
+application.use(express.json());
+application.use(cors());
+
+// Serve static CSS from frontend directory
+application.use('/css', express.static(path.join(__dirname, '../rs_front/css')));
 
 const { build } = require('./data/model');
 let resume_data = {};
 
+// Pre-built lookup maps (populated after data loads)
+let skillMapById = {};
+let companyMapById = {};
+let staffingMapById = {};
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Helper functions
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatDate(dateObj) {
+  if (!dateObj) return 'Unknown';
+  var month = dateObj.$ ? dateObj.$.month : dateObj.month;
+  var year = dateObj.$ ? dateObj.$.year : dateObj.year;
+  var monthIdx = parseInt(month) - 1;
+  if (monthIdx < 0 || monthIdx > 11) monthIdx = 0;
+  return MONTHS[monthIdx] + ' ' + year;
+}
+
+function formatType(type) {
+  switch (type) {
+    case 'full_time': return 'Full Time';
+    case 'contract': return 'Contract';
+    case 'freelance': return 'Freelance';
+    default: return type || 'Full Time';
+  }
+}
+
+function getCompanyName(companyId) {
+  if (!companyId || !companyMapById[companyId]) return companyId || 'Unknown';
+  return companyMapById[companyId] || companyId;
+}
+
+function getStaffingName(staffingId) {
+  if (!staffingId || !staffingMapById[staffingId]) return staffingId || '';
+  return staffingMapById[staffingId] || '';
+}
+
+function getPositionType(position) {
+  var titleObj = position.position_title;
+  if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
+  if (titleObj && titleObj.$) return titleObj.$.position_type;
+  return 'full_time';
+}
+
+function getSkillsForPosition(skillIdsStr) {
+  if (!skillIdsStr) return [];
+  var ids = String(skillIdsStr).split(/\s+/).filter(Boolean);
+  var result = [];
+  for (var i = 0; i < ids.length; i++) {
+    var s = skillMapById[ids[i]];
+    if (s) result.push(s);
+  }
+  return result;
+}
+
+function getPositionTitle(position) {
+  var titleObj = position.position_title;
+  if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
+  if (titleObj && titleObj._) return String(titleObj._);
+  return '';
+}
+
+function getStartYearMonth(pos) {
+  var ds = pos.date_started;
+  if (Array.isArray(ds)) ds = ds[0];
+  if (!ds) return 0;
+  var year = ds.$ ? parseInt(ds.$.year) : parseInt(ds.year);
+  var month = ds.$ ? parseInt(ds.$.month) : parseInt(ds.month);
+  return year * 100 + month;
+}
+
+function buildLookupMaps() {
+  skillMapById = {};
+  companyMapById = {};
+  staffingMapById = {};
+
+  // Build skill map
+  if (resume_data.skills && resume_data.skills.length) {
+    resume_data.skills.forEach(function(s) {
+      skillMapById[s.skill_id] = { skill_id: s.skill_id, skill_value: s.skill_value };
+    });
+  }
+
+  // Build company map
+  if (resume_data.companies && resume_data.companies.length) {
+    resume_data.companies.forEach(function(c) {
+      companyMapById[c.company_id] = c.company_name;
+    });
+  }
+
+  // Build staffing map — staffing firms are stored in the XML but may not be
+  // in the main model. We extract them from positions that reference them.
+  // staffing_fk values in XML are like "lg_consulting", and the staffing_name
+  // is "LG Consulting". We map by parsing known patterns.
+  var staffingDefaults = {
+    'lg_consulting': 'LG Consulting',
+    'aim_consulting': 'AIM Consulting',
+    'rylem': 'Rylem',
+    'creative_circle': 'Creative Circle',
+    'greythorn': 'Greythorn',
+    'parker_staffing': 'Parker Staffing',
+    'redmond_tech': 'Redmond Technology Partners',
+    'aditi_staffing': 'Aditi Staffing'
+  };
+
+  var allStaffingIds = new Set();
+  if (resume_data.positions) {
+    resume_data.positions.forEach(function(p) {
+      if (p.$ && p.$.staffing_fk) {
+        allStaffingIds.add(p.$.staffing_fk);
+      }
+    });
+  }
+
+  allStaffingIds.forEach(function(id) {
+    if (staffingDefaults[id]) {
+      staffingMapById[id] = staffingDefaults[id];
+    } else {
+      // Fallback: convert snake_case to Title Case
+      staffingMapById[id] = id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+    }
+  });
+}
+
+// Start loading data
 (async () => {
   try {
     resume_data = await build('./data/jerome_woody_resume.xml');
+    buildLookupMaps();
+    console.log('Resume data loaded: ' + (resume_data.positions ? resume_data.positions.length : 0) + ' positions');
   } catch (error) {
     console.error('Error building resume data:', error);
   }
 })();
 
-// Enable CORS for all routes
-application.use(cors());
-
-application.listen(3001);
-
-// Route to return all resume info.
-
-application.get('/',(req, res) => {
-    json = JSON.stringify(resume_data);
-    res.set('content-type', 'application/json');
-    res.send(json);
+application.listen(3001, () => {
+  console.log('Server listening on port 3001');
 });
 
-// Route to return resume data for specific position.
+// Helper: check if request wants HTML
+function wantsHtml(req) {
+  var accept = req.headers.accept || '';
+  return accept.includes('text/html') && !accept.includes('application/json');
+}
 
+// Helper: render positions as HTML fragment
+function renderPositionList(res, positions, isFullPage) {
+  res.render('position_list', {
+    positions: positions,
+    escapeHtml: escapeHtml,
+    formatDate: formatDate,
+    formatType: formatType,
+    getSkillsForPosition: getSkillsForPosition,
+    getCompanyName: getCompanyName,
+    getStaffingName: getStaffingName,
+    isFullPage: !!isFullPage
+  });
+}
+
+// ============================================================
+// GET / — Main page (HTML) or full JSON dump
+// ============================================================
+application.get('/', (req, res) => {
+  if (wantsHtml(req)) {
+    var positions = resume_data.positions ? [...resume_data.positions] : [];
+    // Sort by date (newest first)
+    positions.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+
+    res.render('layout', {
+      title: 'CV of Jerome Woody',
+      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'index.ejs'), 'utf-8'), {
+        contact_info: resume_data.contact_info,
+        skills: resume_data.skills,
+        specialization_groups: resume_data.specialization_groups,
+        positions: positions,
+        companies: resume_data.companies,
+        escapeHtml: escapeHtml,
+        formatDate: formatDate,
+        formatType: formatType,
+        getSkillsForPosition: getSkillsForPosition,
+        getCompanyName: getCompanyName,
+        getStaffingName: getStaffingName
+      }, { views: [path.join(__dirname, 'views')] })
+    });
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify(resume_data));
+  }
+});
+
+// ============================================================
+// GET /position/:id — Single position
+// ============================================================
 application.get('/position/:id', (req, res) => {
-    const positions = resume_data.positions;
-    const position_map = {};
-    positions.forEach(element => position_map[element.position.$.position_id] = element);
-    const position_lookup = position_map[req.params.id];
-    json = JSON.stringify(position_lookup);
+  const positions = resume_data.positions;
+  if (!positions) { res.send('{}'); return; }
+
+  var position_map = {};
+  positions.forEach(element => position_map[element.$.position_id] = element);
+  var position_lookup = position_map[req.params.id];
+
+  if (wantsHtml(req)) {
+    res.render('position_detail', {
+      position: position_lookup,
+      contact_info: resume_data.contact_info,
+      skills: resume_data.skills,
+      escapeHtml: escapeHtml,
+      formatDate: formatDate,
+      formatType: formatType,
+      getSkillsForPosition: getSkillsForPosition,
+      getCompanyName: getCompanyName,
+      getStaffingName: getStaffingName
+    });
+  } else {
     res.set('content-type', 'application/json');
-    res.send(json);
+    res.send(JSON.stringify(position_lookup || {}));
+  }
 });
 
-// Route to return resume data based on skill used.
-
+// ============================================================
+// GET /skill/:id — Positions by skill
+// ============================================================
 application.get('/skill/:id', (req, res) => {
-    const positions = resume_data.positions;
-    const skills_map = {};
-    positions.forEach(element => {
-        const skills_list = element.position.$.skills_fk;
-        const skills_array = skills_list.split(' ');
-        skills_array.forEach(skill => {
-            if(!skills_map.hasOwnProperty(skill)) {
-                skills_map[skill] = [];
-            } 
-            skills_map[skill].push(element);
-        });
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+
+  var skills_map = {};
+  positions.forEach(element => {
+    var skills_list = element.$.skills_fk;
+    var skills_array = skills_list.split(' ');
+    skills_array.forEach(skill => {
+      if (!skills_map.hasOwnProperty(skill)) { skills_map[skill] = []; }
+      skills_map[skill].push(element);
     });
-    const skills_lookup = skills_map[req.params.id];
-    json = JSON.stringify(skills_lookup);
+  });
+  var skills_lookup = skills_map[req.params.id];
+  if (!skills_lookup) skills_lookup = [];
+
+  if (wantsHtml(req)) {
+    renderPositionList(res, skills_lookup);
+  } else {
     res.set('content-type', 'application/json');
-    res.send(json);
+    res.send(JSON.stringify(skills_lookup));
+  }
 });
 
-// Route to return resume data based on a specific company.
-
+// ============================================================
+// GET /company/:id — Positions by company
+// ============================================================
 application.get('/company/:id', (req, res) => {
-    const positions = resume_data.positions;
-    const company_map = {};
-    positions.forEach(element => {
-        if(!company_map.hasOwnProperty(element.position.$.company_fk)) {
-            company_map[element.position.$.company_fk] = [];
-        }
-        company_map[element.position.$.company_fk].push(element);
-    });
-    const company_lookup = company_map[req.params.id];
-    json = JSON.stringify(company_lookup);
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+
+  var company_map = {};
+  positions.forEach(element => {
+    if (!company_map.hasOwnProperty(element.$.company_fk)) {
+      company_map[element.$.company_fk] = [];
+    }
+    company_map[element.$.company_fk].push(element);
+  });
+  var company_lookup = company_map[req.params.id];
+  if (!company_lookup) company_lookup = [];
+
+  if (wantsHtml(req)) {
+    renderPositionList(res, company_lookup);
+  } else {
     res.set('content-type', 'application/json');
-    res.send(json);
+    res.send(JSON.stringify(company_lookup));
+  }
 });
 
-// Route to return resume data based on a specific staffing firm.
-
+// ============================================================
+// GET /staffing/:id — Positions by staffing firm
+// ============================================================
 application.get('/staffing/:id', (req, res) => {
-    const positions = resume_data.positions;
-    const staffing_map = {};
-    positions.forEach(element => {
-        if(!staffing_map.hasOwnProperty(element.position.$.staffing_fk)) {
-            staffing_map[element.position.$.staffing_fk] = [];
-        }
-        staffing_map[element.position.$.staffing_fk].push(element);
-    });
-    const staffing_lookup = staffing_map[req.params.id];
-    json = JSON.stringify(staffing_lookup);
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+
+  var staffing_map = {};
+  positions.forEach(element => {
+    if (!staffing_map.hasOwnProperty(element.$.staffing_fk)) {
+      staffing_map[element.$.staffing_fk] = [];
+    }
+    staffing_map[element.$.staffing_fk].push(element);
+  });
+  var staffing_lookup = staffing_map[req.params.id];
+  if (!staffing_lookup) staffing_lookup = [];
+
+  if (wantsHtml(req)) {
+    renderPositionList(res, staffing_lookup);
+  } else {
     res.set('content-type', 'application/json');
-    res.send(json);
+    res.send(JSON.stringify(staffing_lookup));
+  }
 });
 
-//TODO: Add Route to return resume data from a specific range of dates.
-
-// Route to return resume data from a specific range of dates
+// ============================================================
+// GET /dates/:start/:end — Positions in date range
+// ============================================================
 application.get('/dates/:start/:end', (req, res) => {
-    const positions = resume_data.positions;
-    
-    // Parse start and end dates from parameters (expected format: YYYY-MM)
-    const [startYear, startMonth] = req.params.start.split('-').map(Number);
-    const [endYear, endMonth] = req.params.end.split('-').map(Number);
-    
-    // Helper function to compare dates
-    const isDateInRange = (position) => {
-        const posStartYear = parseInt(position.position.date_started[0].$.year);
-        const posStartMonth = parseInt(position.position.date_started[0].$.month);
-        
-        // For positions without end date (current positions), use current date
-        let posEndYear, posEndMonth;
-        if (position.position.date_ended && position.position.date_ended.length > 0) {
-            posEndYear = parseInt(position.position.date_ended[0].$.year);
-            posEndMonth = parseInt(position.position.date_ended[0].$.month);
-        } else {
-            const currentDate = new Date();
-            posEndYear = currentDate.getFullYear();
-            posEndMonth = currentDate.getMonth() + 1;
-        }
-        
-        // Convert all dates to comparable numbers (YYYYMM)
-        const rangeStart = startYear * 100 + startMonth;
-        const rangeEnd = endYear * 100 + endMonth;
-        const posStart = posStartYear * 100 + posStartMonth;
-        const posEnd = posEndYear * 100 + posEndMonth;
-        
-        // Position overlaps with range if:
-        // 1. Position starts within range OR
-        // 2. Position ends within range OR
-        // 3. Position starts before range and ends after range
-        return (
-            (posStart >= rangeStart && posStart <= rangeEnd) ||
-            (posEnd >= rangeStart && posEnd <= rangeEnd) ||
-            (posStart <= rangeStart && posEnd >= rangeEnd)
-        );
-    };
-    
-    // Filter positions that fall within the date range
-    const positions_in_range = positions.filter(isDateInRange);
-    
-    // Sort positions by start date (most recent first)
-    positions_in_range.sort((a, b) => {
-        const aYear = parseInt(a.position.date_started[0].$.year);
-        const aMonth = parseInt(a.position.date_started[0].$.month);
-        const bYear = parseInt(b.position.date_started[0].$.year);
-        const bMonth = parseInt(b.position.date_started[0].$.month);
-        
-        const aDate = aYear * 100 + aMonth;
-        const bDate = bYear * 100 + bMonth;
-        
-        return bDate - aDate; // Descending order
-    });
-    
-    const json = JSON.stringify(positions_in_range);
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+
+  var [startYear, startMonth] = req.params.start.split('-').map(Number);
+  var [endYear, endMonth] = req.params.end.split('-').map(Number);
+
+  var isDateInRange = (position) => {
+    var posStartYear = parseInt(position.date_started[0].$.year);
+    var posStartMonth = parseInt(position.date_started[0].$.month);
+    var posEndYear, posEndMonth;
+    if (position.date_ended && position.date_ended.length > 0) {
+      posEndYear = parseInt(position.date_ended[0].$.year);
+      posEndMonth = parseInt(position.date_ended[0].$.month);
+    } else {
+      var currentDate = new Date();
+      posEndYear = currentDate.getFullYear();
+      posEndMonth = currentDate.getMonth() + 1;
+    }
+    var rangeStart = startYear * 100 + startMonth;
+    var rangeEnd = endYear * 100 + endMonth;
+    var posStart = posStartYear * 100 + posStartMonth;
+    var posEnd = posEndYear * 100 + posEndMonth;
+    return (
+      (posStart >= rangeStart && posStart <= rangeEnd) ||
+      (posEnd >= rangeStart && posEnd <= rangeEnd) ||
+      (posStart <= rangeStart && posEnd >= rangeEnd)
+    );
+  };
+
+  var positions_in_range = positions.filter(isDateInRange);
+  positions_in_range.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+
+  if (wantsHtml(req)) {
+    renderPositionList(res, positions_in_range);
+  } else {
     res.set('content-type', 'application/json');
-    res.send(json);
+    res.send(JSON.stringify(positions_in_range));
+  }
 });
 
+// ============================================================
+// NEW ROUTES: HTMX-friendly API endpoints
+// ============================================================
+
+// GET /api/positions/by-skill/:id — Positions using a skill (HTML fragment or JSON)
+application.get('/api/positions/by-skill/:id', (req, res) => {
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+  var skillId = req.params.id;
+  var filtered = positions.filter(p => p.$.skills_fk && p.$.skills_fk.includes(skillId));
+  filtered.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+  if (wantsHtml(req)) {
+    renderPositionList(res, filtered);
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify(filtered));
+  }
+});
+
+// GET /api/positions/by-company/:id — Positions at a company
+application.get('/api/positions/by-company/:id', (req, res) => {
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+  var companyId = req.params.id;
+  var filtered = positions.filter(p => p.$.company_fk === companyId);
+  filtered.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+  if (wantsHtml(req)) {
+    renderPositionList(res, filtered);
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify(filtered));
+  }
+});
+
+// GET /api/positions/by-year/:year — Positions starting in a year
+application.get('/api/positions/by-year/:year', (req, res) => {
+  var positions = resume_data.positions;
+  if (!positions) { res.send('[]'); return; }
+  var year = parseInt(req.params.year);
+  var filtered = positions.filter(p => {
+    var ym = getStartYearMonth(p);
+    return Math.floor(ym / 100) === year;
+  });
+  filtered.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+  if (wantsHtml(req)) {
+    renderPositionList(res, filtered);
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify(filtered));
+  }
+});
+
+// POST /api/filter — Compound filter endpoint
+application.post('/api/filter', (req, res) => {
+  var positions = resume_data.positions ? [...resume_data.positions] : [];
+  var body = req.body;
+
+  // Filter by skill
+  if (body.skill && body.skill.length) {
+    var skills = Array.isArray(body.skill) ? body.skill : [body.skill];
+    positions = positions.filter(p => {
+      if (!p.$.skills_fk) return false;
+      var posSkills = p.$.skills_fk.split(/\s+/);
+      return skills.some(s => posSkills.includes(s));
+    });
+  }
+
+  // Filter by company
+  if (body.company && body.company.length) {
+    var companies = Array.isArray(body.company) ? body.company : [body.company];
+    positions = positions.filter(p => companies.includes(p.$.company_fk));
+  }
+
+  // Filter by employment type
+  if (body.type && body.type.length) {
+    var types = Array.isArray(body.type) ? body.type : [body.type];
+    positions = positions.filter(p => {
+      var titleObj = p.position_title;
+      if (Array.isArray(titleObj)) titleObj = titleObj[0];
+      var ptype = titleObj && titleObj.$ ? titleObj.$.position_type : 'full_time';
+      return types.includes(ptype);
+    });
+  }
+
+  // Filter by search text
+  if (body.search && body.search.trim()) {
+    var searchText = body.search.trim().toLowerCase();
+    positions = positions.filter(p => {
+      // Search by position title
+      var titleObj = p.position_title;
+      if (Array.isArray(titleObj)) titleObj = titleObj[0];
+      var title = titleObj && titleObj._ ? titleObj._.toLowerCase() : '';
+      if (title.includes(searchText)) return true;
+      // Search by company name
+      var compName = getCompanyName(p.$.company_fk) || '';
+      if (compName.toLowerCase().includes(searchText)) return true;
+      // Search by skills
+      var skills = getSkillsForPosition(p.$.skills_fk);
+      for (var i = 0; i < skills.length; i++) {
+        if (skills[i].skill_value.toLowerCase().includes(searchText)) return true;
+      }
+      return false;
+    });
+  }
+
+  // Filter by year range
+  var year_from = body.year_from ? parseInt(body.year_from) : null;
+  var year_to = body.year_to ? parseInt(body.year_to) : null;
+  if (year_from || year_to) {
+    var from = year_from || 0;
+    var to = year_to || 9999;
+    positions = positions.filter(p => {
+      var ym = getStartYearMonth(p);
+      var year = Math.floor(ym / 100);
+      return year >= from && year <= to;
+    });
+  }
+
+  // Sort by date (newest first)
+  positions.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
+
+  if (wantsHtml(req)) {
+    renderPositionList(res, positions);
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify(positions));
+  }
+});
+
+// ============================================================
+// NEW ROUTES: Position card expansion (HTMX)
+// ============================================================
+
+// GET /api/position/:id/card — Return expanded card (details view)
+application.get('/api/position/:id/card', (req, res) => {
+  var positions = resume_data.positions;
+  if (!positions) { res.send(''); return; }
+
+  var position = null;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].$ && positions[i].$.position_id === req.params.id) {
+      position = positions[i];
+      break;
+    }
+  }
+  if (!position) { res.send(''); return; }
+
+  // Extract position data
+  var posId = position.$.position_id;
+  var companyFk = position.$.company_fk;
+  var staffingFk = position.$.staffing_fk;
+  var skillsFk = position.$.skills_fk;
+
+  var titleObj = position.position_title;
+  if (Array.isArray(titleObj)) titleObj = titleObj[0];
+  var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
+  var posTitle = titleObj._ || '';
+
+  var dateStarted = position.date_started;
+  if (Array.isArray(dateStarted)) dateStarted = dateStarted[0];
+  var dateEnded = position.date_ended;
+  if (dateEnded) {
+    if (Array.isArray(dateEnded)) dateEnded = dateEnded[0];
+  }
+
+  var skills = getSkillsForPosition(skillsFk);
+  var companyName = getCompanyName(companyFk);
+  var staffingName = getStaffingName(staffingFk);
+
+  if (wantsHtml(req)) {
+    res.render('position_card_detail', {
+      posId: posId,
+      posTitle: posTitle,
+      companyName: companyName,
+      staffingName: staffingName,
+      dateStarted: dateStarted,
+      dateEnded: dateEnded,
+      positionType: posType,
+      skills: skills,
+      summaryItems: position.summary_items,
+      escapeHtml: escapeHtml,
+      formatDate: formatDate,
+      formatType: formatType
+    });
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify({
+      posId: posId,
+      posTitle: posTitle,
+      companyName: companyName,
+      staffingName: staffingName,
+      dateStarted: dateStarted,
+      dateEnded: dateEnded,
+      positionType: posType,
+      skills: skills,
+      summaryItems: position.summary_items
+    }));
+  }
+});
+
+// GET /api/position/:id/summary — Return collapsed card (summary view)
+application.get('/api/position/:id/summary', (req, res) => {
+  var positions = resume_data.positions;
+  if (!positions) { res.send(''); return; }
+
+  var position = null;
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i].$ && positions[i].$.position_id === req.params.id) {
+      position = positions[i];
+      break;
+    }
+  }
+  if (!position) { res.send(''); return; }
+
+  // Extract position data
+  var posId = position.$.position_id;
+  var companyFk = position.$.company_fk;
+  var staffingFk = position.$.staffing_fk;
+  var skillsFk = position.$.skills_fk;
+
+  var titleObj = position.position_title;
+  if (Array.isArray(titleObj)) titleObj = titleObj[0];
+  var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
+  var posTitle = titleObj._ || '';
+
+  var dateStarted = position.date_started;
+  if (Array.isArray(dateStarted)) dateStarted = dateStarted[0];
+  var dateEnded = position.date_ended;
+  if (dateEnded) {
+    if (Array.isArray(dateEnded)) dateEnded = dateEnded[0];
+  }
+
+  var skills = getSkillsForPosition(skillsFk);
+  var companyName = getCompanyName(companyFk);
+  var staffingName = getStaffingName(staffingFk);
+
+  if (wantsHtml(req)) {
+    res.render('position_card', {
+      posId: posId,
+      posTitle: posTitle,
+      companyName: companyName,
+      staffingName: staffingName,
+      dateStarted: dateStarted,
+      dateEnded: dateEnded,
+      positionType: posType,
+      skills: skills,
+      summaryItems: position.summary_items,
+      escapeHtml: escapeHtml,
+      formatDate: formatDate,
+      formatType: formatType
+    });
+  } else {
+    res.set('content-type', 'application/json');
+    res.send(JSON.stringify({
+      posId: posId,
+      posTitle: posTitle,
+      companyName: companyName,
+      staffingName: staffingName,
+      dateStarted: dateStarted,
+      dateEnded: dateEnded,
+      positionType: posType,
+      skills: skills,
+      summaryItems: position.summary_items
+    }));
+  }
+});

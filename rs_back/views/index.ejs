@@ -1,0 +1,32 @@
+<%- include('header', { contact_info: contact_info, escapeHtml: escapeHtml }) %>
+
+<!-- Skills Overview Section -->
+<section class="skills-section">
+  <h2 class="section-title">Skills</h2>
+  <div class="skills-container">
+    <% skills.forEach(function(s) { %>
+      <span class="skill-item" hx-get="/api/positions/by-skill/<%= s.skill_id %>" hx-target="#results" hx-swap="outerHTML" style="cursor:pointer"><%= escapeHtml(s.skill_value) %></span>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Filter + Results Layout -->
+<div class="main-layout">
+  <!-- Filter Sidebar -->
+  <%- include('filters', {
+    skills: skills,
+    companies: companies,
+    escapeHtml: escapeHtml
+  }) %>
+
+  <!-- Results Area -->
+  <%- include('position_list', {
+    positions: positions,
+    escapeHtml: escapeHtml,
+    formatDate: formatDate,
+    formatType: formatType,
+    getSkillsForPosition: getSkillsForPosition,
+    getCompanyName: getCompanyName,
+    getStaffingName: getStaffingName
+  }) %>
+</div>

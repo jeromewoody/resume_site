@@ -1,0 +1,50 @@
+<div id="results" class="positions-container">
+  <% if (positions && positions.length > 0) { %>
+    <% positions.forEach(function(pos) {
+      // Extract position data
+      var posId = pos.$.position_id;
+      var companyFk = pos.$.company_fk;
+      var staffingFk = pos.$.staffing_fk;
+      var skillsFk = pos.$.skills_fk;
+
+      // Handle position_title — can be object or array
+      var titleObj = pos.position_title;
+      if (Array.isArray(titleObj)) { titleObj = titleObj[0]; }
+      var posType = titleObj.$ ? titleObj.$.position_type : 'full_time';
+      var posTitle = titleObj._ || '';
+
+      // Handle dates
+      var dateStarted = pos.date_started;
+      if (Array.isArray(dateStarted)) { dateStarted = dateStarted[0]; }
+      var dateEnded = pos.date_ended;
+      if (dateEnded) {
+        if (Array.isArray(dateEnded)) { dateEnded = dateEnded[0]; }
+      }
+
+      // Get skills array
+      var skills = getSkillsForPosition(skillsFk);
+
+      // Get company & staffing names
+      var companyName = getCompanyName(companyFk);
+      var staffingName = getStaffingName(staffingFk);
+
+      // Render card
+    %>
+      <%- include('position_card', {
+        posId: posId,
+        posTitle: posTitle,
+        companyName: companyName,
+        staffingName: staffingName,
+        dateStarted: dateStarted,
+        dateEnded: dateEnded,
+        positionType: posType,
+        skills: skills,
+        summaryItems: pos.summary_items
+      }) %>
+    <% }) %>
+  <% } else { %>
+    <div class="resume-empty">
+      <p class="empty-text">No positions match the selected filters.</p>
+    </div>
+  <% } %>
+</div>

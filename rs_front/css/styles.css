@@ -1,0 +1,479 @@
+/* Base styles and CSS reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+  }
+
+/* ========================
+ * HTMX Loading Indicators
+ * ======================== */
+.htmx-indicator {
+  display: none;
+}
+.htmx-request.htmx-indicator {
+  display: inline;
+}
+
+/* ========================
+ * Main Layout (Sidebar + Results)
+ * ======================== */
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* ========================
+ * Filter Sidebar
+ * ======================== */
+.filter-sidebar {
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  align-self: flex-start;
+  position: sticky;
+  top: 1rem;
+}
+
+.filter-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.filter-sidebar fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.filter-sidebar legend {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.filter-checkboxes {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #495057;
+  cursor: pointer;
+}
+
+.filter-label:hover {
+  color: #2c3e50;
+}
+
+.filter-label input[type="checkbox"] {
+  accent-color: #2c3e50;
+}
+
+.year-range {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ========================
+ * Year Range Slider
+ * ======================== */
+.year-slider-container {
+  width: 100%;
+}
+
+.year-slider-track {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.year-slider {
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.year-slider::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2c3e50;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease;
+}
+
+.year-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.year-slider::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2c3e50;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.year-slider-from {
+  z-index: 3;
+}
+
+.year-slider-to {
+  z-index: 1;
+}
+
+.year-slider-fill {
+  position: absolute;
+  height: 6px;
+  background: #2c3e50;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.year-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.year-range-label {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.year-range label {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.year-range input[type="number"] {
+  width: 70px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.clear-filters-btn {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.clear-filters-btn:hover {
+  background: #5a6268;
+}
+
+/* Search input */
+#search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+}
+
+/* ========================
+ * Responsive: Hide sidebar on small screens
+ * ======================== */
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+  }
+
+  .filter-sidebar {
+    width: 100%;
+    min-width: 100%;
+    position: static;
+  }
+
+  .filter-checkboxes {
+    max-height: none;
+  }
+}
+
+  
+  /* Container Layout */
+  .resume-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  /* Header Styles */
+  .resume-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+  }
+  
+  .person-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+  
+  .contact-info {
+    color: #666;
+  }
+  
+  .contact-email,
+  .contact-phone {
+    margin: 0.25rem 0;
+  }
+  
+  /* Skills Section */
+  .skills-section {
+    margin-bottom: 3rem;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+  
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .skill-item {
+    background-color: #e9ecef;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+  
+  /* Experience Section */
+  .experience-section {
+    margin-bottom: 3rem;
+  }
+  
+  .positions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  /* Position Card Styles */
+  .position-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  
+  .position-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .position-content {
+    padding: 1.5rem;
+  }
+  
+  .position-header {
+    margin-bottom: 1rem;
+  }
+  
+  .position-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+  
+  .position-company {
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .company-name {
+    font-weight: 500;
+  }
+  
+  .staffing-separator {
+    margin: 0 0.5rem;
+    color: #999;
+  }
+  
+  /* Employment Details */
+  .employment-details {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .duration,
+  .employment-type {
+    margin: 0.5rem 0;
+  }
+  
+  .duration-label,
+  .type-label {
+    font-weight: 500;
+  }
+  
+  /* Skills in Position Card */
+  .skills-section {
+    margin: 1.5rem 0;
+  }
+  
+  .skills-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+  }
+  
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .skill-tag {
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #495057;
+    border: 1px solid #e9ecef;
+  }
+  
+  /* Summary Section */
+  .summary-section {
+    margin-top: 1.5rem;
+  }
+  
+  .summary-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+  }
+  
+  .summary-list {
+    list-style-position: inside;
+    padding-left: 1rem;
+  }
+  
+  .summary-item {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  /* Loading, Error, and Empty States */
+  .resume-loading,
+  .resume-error,
+  .resume-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    text-align: center;
+  }
+  
+  .loading-text,
+  .error-text,
+  .empty-text {
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  .error-text {
+    color: #dc3545;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .resume-container {
+      padding: 1rem;
+    }
+  
+    .person-name {
+      font-size: 2rem;
+    }
+  
+    .section-title {
+      font-size: 1.5rem;
+    }
+  
+    .position-content {
+      padding: 1rem;
+    }
+  
+    .skills-container,
+    .skills-list {
+      gap: 0.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .person-name {
+      font-size: 1.75rem;
+    }
+  
+    .position-title {
+      font-size: 1.1rem;
+    }
+  
+    .skill-item,
+    .skill-tag {
+      font-size: 0.8rem;
+    }
+  }

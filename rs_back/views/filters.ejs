@@ -1,0 +1,98 @@
+<aside class="filter-sidebar">
+  <h3 class="filter-title">Filters</h3>
+
+  <form id="filter-form"
+        hx-post="/api/filter"
+        hx-target="#results"
+        hx-trigger="change from:body delay:200ms, keyup from:#search-input delay:300ms"
+        hx-swap="innerHTML"
+        hx-push-url="true">
+
+    <!-- Search -->
+    <fieldset>
+      <legend>Search</legend>
+      <input type="text"
+             id="search-input"
+             name="search"
+             placeholder="Title, company, skill..."
+             autocomplete="off">
+    </fieldset>
+
+    <!-- Skills checkboxes -->
+    <fieldset>
+      <legend>Skills</legend>
+      <div class="filter-checkboxes">
+        <% skills.forEach(function(s) { %>
+          <label class="filter-label">
+            <input type="checkbox" name="skill" value="<%= s.skill_id %>">
+            <%= escapeHtml(s.skill_value) %>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <!-- Company checkboxes -->
+    <fieldset>
+      <legend>Company</legend>
+      <div class="filter-checkboxes">
+        <% companies.forEach(function(c) { %>
+          <label class="filter-label">
+            <input type="checkbox" name="company" value="<%= c.company_id %>">
+            <%= escapeHtml(c.company_name) %>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <!-- Employment Type -->
+    <fieldset>
+      <legend>Employment Type</legend>
+      <div class="filter-checkboxes">
+        <label class="filter-label">
+          <input type="checkbox" name="type" value="full_time"> Full Time
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" name="type" value="contract"> Contract
+        </label>
+        <label class="filter-label">
+          <input type="checkbox" name="type" value="freelance"> Freelance
+        </label>
+      </div>
+    </fieldset>
+
+    <!-- Year Range -->
+    <fieldset>
+      <legend>Years</legend>
+      <div class="year-slider-container">
+        <div class="year-slider-track">
+          <input type="range"
+                 id="year-from"
+                 name="year_from"
+                 value="2005"
+                 min="2005"
+                 max="2026"
+                 class="year-slider year-slider-from">
+          <input type="range"
+                 id="year-to"
+                 name="year_to"
+                 value="2026"
+                 min="2005"
+                 max="2026"
+                 class="year-slider year-slider-to">
+          <div class="year-slider-fill"></div>
+        </div>
+        <div class="year-slider-labels">
+          <span class="year-from-label">2005</span>
+          <span class="year-range-label">– 2026</span>
+          <span class="year-to-label">2026</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <button type="button" class="clear-filters-btn"
+            hx-post="/api/filter"
+            hx-target="#results"
+            hx-swap="innerHTML"
+            hx-push-url="true">Clear Filters</button>
+  </form>
+</aside>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title || 'CV of Jerome Woody' %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4"></script>
+  <script>
+    // Year range slider: prevent crossing, update fill, update labels
+    (function() {
+      var fromSlider = document.getElementById('year-from');
+      var toSlider = document.getElementById('year-to');
+      var fill = document.querySelector('.year-slider-fill');
+      var fromLabel = document.querySelector('.year-from-label');
+      var toLabel = document.querySelector('.year-to-label');
+      var rangeLabel = document.querySelector('.year-range-label');
+      var form = document.getElementById('filter-form');
+
+      function updateSliderValues() {
+        var fromVal = parseInt(fromSlider.value);
+        var toVal = parseInt(toSlider.value);
+
+        // Prevent crossing
+        if (fromVal > toVal) {
+          toSlider.value = fromVal;
+          fromLabel.textContent = fromVal;
+          toLabel.textContent = fromVal;
+          rangeLabel.textContent = '– ' + fromVal;
+          updateFill();
+          return;
+        }
+        if (toVal < fromVal) {
+          fromSlider.value = toVal;
+          fromLabel.textContent = toVal;
+          toLabel.textContent = toVal;
+          rangeLabel.textContent = toVal + ' –';
+          updateFill();
+          return;
+        }
+
+        fromLabel.textContent = fromVal;
+        toLabel.textContent = toVal;
+        rangeLabel.textContent = fromVal + ' – ' + toVal;
+        updateFill();
+      }
+
+      function updateFill() {
+        var fromVal = parseInt(fromSlider.value);
+        var toVal = parseInt(toSlider.value);
+        var minVal = parseInt(fromSlider.min);
+        var maxVal = parseInt(fromSlider.max);
+        var fromPct = ((fromVal - minVal) / (maxVal - minVal)) * 100;
+        var toPct = ((toVal - minVal) / (maxVal - minVal)) * 100;
+        fill.style.left = fromPct + '%';
+        fill.style.width = (toPct - fromPct) + '%';
+      }
+
+      if (fromSlider && toSlider) {
+        fromSlider.addEventListener('input', function() {
+          updateSliderValues();
+          if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        toSlider.addEventListener('input', function() {
+          updateSliderValues();
+          if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        // Initial setup
+        updateSliderValues();
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="resume-container">
+    <%- body %>
+  </div>
+</body>
+</html>
