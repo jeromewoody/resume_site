@@ -4,14 +4,26 @@ A server-rendered interactive resume website built with Express.js and HTMX, bac
 
 ## Project Structure
 
-- `rs_back/`: Express.js backend server
-  - XML-based resume data model
-  - EJS template rendering
-  - HTMX-driven dynamic filtering
-  - Dual-mode API (HTML fragments + JSON)
-
-- `rs_front/`: Static frontend assets
-  - CSS styles served by Express
+```
+src/
+├── controller.js          # Express server (port 3001)
+├── package.json
+├── public/css/styles.css  # Static styles
+├── views/                 # EJS templates
+│   ├── layout.ejs
+│   ├── index.ejs
+│   ├── filters.ejs
+│   ├── header.ejs
+│   ├── position_card.ejs
+│   ├── position_card_detail.ejs
+│   ├── position_detail.ejs
+│   └── position_list.ejs
+└── data/
+    ├── jerome_woody_resume.xml
+    ├── model.js           # XML → JS parser
+    ├── resume.dtd         # XML DTD schema
+    └── resume.xsd         # XML Schema (reference)
+```
 
 ## Technologies Used
 
@@ -22,7 +34,7 @@ A server-rendered interactive resume website built with Express.js and HTMX, bac
 ## Setup
 
 ```bash
-cd rs_back
+cd src
 npm install
 node controller.js
 ```

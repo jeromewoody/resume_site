@@ -12,8 +12,8 @@ application.use(express.urlencoded({ extended: true }));
 application.use(express.json());
 application.use(cors());
 
-// Serve static CSS from frontend directory
-application.use('/css', express.static(path.join(__dirname, '../rs_front/css')));
+// Serve static CSS
+application.use('/css', express.static(path.join(__dirname, 'public/css')));
 
 const { build } = require('./data/model');
 let resume_data = {};
