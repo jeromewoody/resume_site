@@ -1,0 +1,247 @@
+<section class="analytics-section">
+  <h2 class="section-title">Career Timeline</h2>
+  <p class="analytics-subtitle">Positions overlaid with skill usage across your career</p>
+  <div id="career-timeline-chart"></div>
+</section>
+
+<section class="analytics-section">
+  <h2 class="section-title">Skills Over Time</h2>
+  <p class="analytics-subtitle">Skill usage by year</p>
+  <div id="skills-over-time-chart"></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+(function() {
+  var cs = getComputedStyle(document.documentElement);
+  window.__themeTokens = {
+    chart: [
+      cs.getPropertyValue('--chart-1').trim(),
+      cs.getPropertyValue('--chart-2').trim(),
+      cs.getPropertyValue('--chart-3').trim(),
+      cs.getPropertyValue('--chart-4').trim(),
+      cs.getPropertyValue('--chart-5').trim(),
+      cs.getPropertyValue('--chart-6').trim()
+    ],
+    text1: cs.getPropertyValue('--text-1').trim(),
+    text2: cs.getPropertyValue('--text-2').trim(),
+    text3: cs.getPropertyValue('--text-3').trim(),
+    border: cs.getPropertyValue('--border').trim(),
+    nightOpacity: cs.getPropertyValue('--chart-opacity').trim() || '1'
+  };
+})();
+
+// ============================================================
+// Career Timeline — Gantt-style chart
+// ============================================================
+(function() {
+  var timeline = <%- JSON.stringify(career_timeline) %>;
+  var tokens = window.__themeTokens;
+  var container = document.getElementById('career-timeline-chart');
+
+  var margin = { top: 40, right: 120, bottom: 50, left: 20 };
+  var width = Math.min(container.parentElement.clientWidth - 40, 1100) - margin.left - margin.right;
+  var rowHeight = 32;
+  var height = timeline.length * rowHeight;
+
+  timeline.forEach(function(d) {
+    d.startD = d3.timeParse('%Y-%m')(d.start);
+    d.endD = d.end ? d3.timeParse('%Y-%m')(d.end) : new Date();
+  });
+
+  var x = d3.scaleTime()
+    .domain(d3.extent(timeline, function(d) {
+      return Math.min(d.startD, d.endD);
+    }))
+    .range([0, width]);
+
+  var y = d3.scaleBand()
+    .domain(timeline.map(function(d) { return d.position_id; }))
+    .range([0, height])
+    .padding(0.3);
+
+  var typeColor = {
+    full_time: tokens.chart[0],
+    contract: tokens.chart[1],
+    freelance: tokens.chart[2]
+  };
+
+  var svg = d3.select('#career-timeline-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  // Grid lines
+  svg.append('g')
+    .attr('class', 'd3-grid')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(x).ticks(10).tickSize(-height).tickFormat(''));
+
+  // X axis
+  svg.append('g')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(x).ticks(10).tickFormat(d3.format('%Y')))
+    .attr('class', 'd3-axis');
+
+  // Y axis
+  svg.append('g')
+    .call(d3.axisLeft(y).tickSize(0).tickFormat(function(d) { return ''; }))
+    .select('.domain').remove();
+
+  // Bars
+  var tooltip = d3.select('#career-timeline-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
+
+  svg.selectAll('.timeline-bar')
+    .data(timeline)
+    .enter()
+    .append('rect')
+    .attr('class', 'd3-bar timeline-bar')
+    .attr('y', function(d) { return y(d.position_id); })
+    .attr('height', y.bandwidth())
+    .attr('x', function(d) { return x(d.startD); })
+    .attr('width', function(d) { return Math.max(1, x(d.endD) - x(d.startD)); })
+    .attr('rx', 3)
+    .attr('fill', function(d) {
+      return typeColor[d.positionType] || tokens.chart[1];
+    })
+    .style('cursor', 'pointer')
+    .style('opacity', tokens.nightOpacity)
+    .on('mouseover', function(event, d) {
+      tooltip
+        .style('opacity', 1)
+        .html('<strong>' + d.title + '</strong><br>' +
+               d.company + '<br>' +
+               d.start + ' to ' + (d.end || 'Present'));
+      d3.select(this).attr('opacity', 0.8);
+    })
+    .on('mousemove', function(event) {
+      tooltip
+        .style('left', (event.pageX + 12) + 'px')
+        .style('top', (event.pageY - 12) + 'px');
+    })
+    .on('mouseout', function() {
+      tooltip.style('opacity', 0);
+      d3.select(this).attr('opacity', 1);
+    });
+
+  // Position labels on the right
+  svg.selectAll('.timeline-label')
+    .data(timeline)
+    .enter()
+    .append('text')
+    .attr('class', 'timeline-label')
+    .attr('x', width + 8)
+    .attr('y', function(d) { return y(d.position_id) + y.bandwidth() / 2 + 4; })
+    .style('font-size', '0.75rem')
+    .style('fill', tokens.text2)
+    .text(function(d) { return d.company; });
+
+})();
+
+// ============================================================
+// Skills Over Time — Heatmap
+// ============================================================
+(function() {
+  var data = <%- JSON.stringify(skills_over_time) %>;
+  var tokens = window.__themeTokens;
+  var container = document.getElementById('skills-over-time-chart');
+
+  var allSkills = {};
+  data.forEach(function(d) {
+    d.skills.forEach(function(s) {
+      if (!allSkills[s.skill_id]) allSkills[s.skill_id] = { id: s.skill_id, name: s.skill_name };
+    });
+  });
+
+  var skillList = Object.values(allSkills);
+  var years = data.map(function(d) { return d.year; });
+
+  var margin = { top: 20, right: 20, bottom: 40, left: 120 };
+  var cellSize = 20;
+  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
+  var height = skillList.length * (cellSize + 2);
+
+  var svg = d3.select('#skills-over-time-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom + 20))
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var x = d3.scaleLinear()
+    .domain([0, years.length - 1])
+    .range([0, years.length * (cellSize + 2)]);
+
+  var color = d3.scaleOrdinal()
+    .domain(skillList.map(function(d) { return d.id; }))
+    .range(tokens.chart);
+
+  var tooltip = d3.select('#skills-over-time-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
+
+  data.forEach(function(yearData, yi) {
+    var skillMap = {};
+    yearData.skills.forEach(function(s) { skillMap[s.skill_id] = s.count; });
+
+    skillList.forEach(function(skill, si) {
+      var count = skillMap[skill.id] || 0;
+      var cell = svg.append('rect')
+        .attr('x', yi * (cellSize + 2))
+        .attr('y', si * (cellSize + 2))
+        .attr('width', cellSize)
+        .attr('height', cellSize)
+        .attr('rx', 3)
+        .attr('fill', count > 0 ? color(skill.id) : tokens.border)
+        .attr('opacity', count > 0 ? Math.min(1, 0.3 + count * 0.4) * parseFloat(tokens.nightOpacity) : 0.2)
+        .style('cursor', 'pointer');
+
+      cell.on('mouseover', function() {
+        tooltip
+          .style('opacity', 1)
+          .html(skill.name + '<br>' + yearData.year + ': ' + count + ' position' + (count !== 1 ? 's' : ''));
+        d3.select(this).attr('stroke', tokens.text1).attr('stroke-width', 2);
+      })
+      .on('mousemove', function(event) {
+        tooltip
+          .style('left', (event.pageX + 12) + 'px')
+          .style('top', (event.pageY - 12) + 'px');
+      })
+      .on('mouseout', function() {
+        tooltip.style('opacity', 0);
+        d3.select(this).attr('stroke', null).attr('stroke-width', null);
+      });
+    });
+  });
+
+  // Year labels
+  data.forEach(function(d, i) {
+    svg.append('text')
+      .attr('x', i * (cellSize + 2) + cellSize / 2)
+      .attr('y', height + 16)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '0.75rem')
+      .style('fill', tokens.text2)
+      .text(d.year);
+  });
+
+  // Skill labels
+  skillList.forEach(function(s, i) {
+    svg.append('text')
+      .attr('x', -8)
+      .attr('y', i * (cellSize + 2) + cellSize / 2 + 4)
+      .attr('text-anchor', 'end')
+      .style('font-size', '0.7rem')
+      .style('fill', tokens.text2)
+      .text(s.name);
+  });
+})();
+</script>

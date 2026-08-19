@@ -16,6 +16,7 @@ application.use(cors());
 application.use('/css', express.static(path.join(__dirname, 'public/css')));
 
 const { build } = require('./data/model');
+const analytics = require('./data/analytics');
 let resume_data = {};
 
 // Pre-built lookup maps (populated after data loads)
@@ -198,11 +199,24 @@ application.get('/', (req, res) => {
     // Sort by date (newest first)
     positions.sort((a, b) => getStartYearMonth(b) - getStartYearMonth(a));
 
+    // Only show skill items referenced by position cards (skills_fk)
+    var usedSkillIds = new Set();
+    if (positions && skillMapById) {
+      positions.forEach(function(p) {
+        if (p.$ && p.$.skills_fk) {
+          String(p.$.skills_fk).split(/\s+/).filter(Boolean).forEach(function(id) {
+            usedSkillIds.add(id);
+          });
+        }
+      });
+    }
+    var visibleSkills = resume_data.skills ? resume_data.skills.filter(function(s) { return usedSkillIds.has(s.skill_id); }) : [];
+
     res.render('layout', {
       title: 'CV of Jerome Woody',
       body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'index.ejs'), 'utf-8'), {
         contact_info: resume_data.contact_info,
-        skills: resume_data.skills,
+        skills: visibleSkills,
         specialization_groups: resume_data.specialization_groups,
         positions: positions,
         companies: resume_data.companies,
@@ -212,7 +226,9 @@ application.get('/', (req, res) => {
         getSkillsForPosition: getSkillsForPosition,
         getCompanyName: getCompanyName,
         getStaffingName: getStaffingName
-      }, { views: [path.join(__dirname, 'views')] })
+      }, { views: [path.join(__dirname, 'views')] }),
+      contact_info: resume_data.contact_info,
+      escapeHtml: escapeHtml
     });
   } else {
     res.set('content-type', 'application/json');
@@ -221,7 +237,7 @@ application.get('/', (req, res) => {
 });
 
 // ============================================================
-// GET /position/:id — Single position
+// GET /position/:id — Single position (full page with nav) or JSON object
 // ============================================================
 application.get('/position/:id', (req, res) => {
   const positions = resume_data.positions;
@@ -232,7 +248,7 @@ application.get('/position/:id', (req, res) => {
   var position_lookup = position_map[req.params.id];
 
   if (wantsHtml(req)) {
-    res.render('position_detail', {
+    var detailBody = ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'position_detail.ejs'), 'utf-8'), {
       position: position_lookup,
       contact_info: resume_data.contact_info,
       skills: resume_data.skills,
@@ -242,6 +258,13 @@ application.get('/position/:id', (req, res) => {
       getSkillsForPosition: getSkillsForPosition,
       getCompanyName: getCompanyName,
       getStaffingName: getStaffingName
+    }, { views: [path.join(__dirname, 'views')] });
+
+    res.render('layout', {
+      title: position_lookup ? (getPositionTitle(position_lookup) || 'Position Detail') : 'Position Not Found',
+      body: detailBody,
+      contact_info: resume_data.contact_info,
+      escapeHtml: escapeHtml
     });
   } else {
     res.set('content-type', 'application/json');
@@ -634,5 +657,97 @@ application.get('/api/position/:id/summary', (req, res) => {
       skills: skills,
       summaryItems: position.summary_items
     }));
+  }
+});
+
+// ============================================================
+// ANALYTICS ROUTES: Data endpoints for D3 visualizations
+// ============================================================
+
+// GET /analytics — All analytics data in one endpoint
+application.get('/analytics', (req, res) => {
+  if (!resume_data.positions || resume_data.positions.length === 0) {
+    res.json({});
+    return;
+  }
+
+  res.json({
+    skill_frequency: analytics.skillFrequency(resume_data, skillMapById),
+    skill_cooccurrence: analytics.skillCooccurrence(resume_data),
+    skills_over_time: analytics.skillsOverTime(resume_data, skillMapById),
+    employment_types: analytics.employmentTypeDistribution(resume_data),
+    career_timeline: analytics.careerTimeline(resume_data, companyMapById),
+    company_tenure: analytics.companyTenure(resume_data, companyMapById),
+    staffing: analytics.staffingAnalysis(resume_data, staffingMapById),
+    career_phases: analytics.careerPhases(resume_data, skillMapById)
+  });
+});
+
+// GET /analytics/skills — Skill frequency chart (HTML or JSON)
+application.get('/analytics/skills', (req, res) => {
+  var skill_freq = analytics.skillFrequency(resume_data, skillMapById);
+  var phases = analytics.careerPhases(resume_data, skillMapById);
+   if (wantsHtml(req)) {
+    res.render('layout', {
+      title: 'Skills Analytics',
+      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'analytics_skills.ejs'), 'utf-8'), {
+        skill_frequency: skill_freq,
+        career_phases: phases
+      }, { views: [path.join(__dirname, 'views')] }),
+      contact_info: resume_data.contact_info,
+      escapeHtml: escapeHtml
+    });
+  } else {
+    res.json({ skill_frequency: skill_freq, career_phases: phases });
+  }
+});
+
+// GET /analytics/timeline — Career timeline chart (HTML or JSON)
+application.get('/analytics/timeline', (req, res) => {
+  var ct = analytics.careerTimeline(resume_data, companyMapById);
+  var sot = analytics.skillsOverTime(resume_data, skillMapById);
+   if (wantsHtml(req)) {
+    res.render('layout', {
+      title: 'Career Timeline',
+      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'analytics_timeline.ejs'), 'utf-8'), {
+        career_timeline: ct,
+        skills_over_time: sot
+      }, { views: [path.join(__dirname, 'views')] }),
+      contact_info: resume_data.contact_info,
+      escapeHtml: escapeHtml
+    });
+  } else {
+    res.json({ career_timeline: ct, skills_over_time: sot });
+  }
+});
+
+// GET /analytics/distribution — Employment & staffing dashboard (HTML or JSON)
+application.get('/analytics/distribution', (req, res) => {
+  var et = analytics.employmentTypeDistribution(resume_data);
+  var sa = analytics.staffingAnalysis(resume_data, staffingMapById);
+  var ct = analytics.companyTenure(resume_data, companyMapById);
+  var sf = analytics.skillFrequency(resume_data, skillMapById);
+  var ph = analytics.careerPhases(resume_data, skillMapById);
+   if (wantsHtml(req)) {
+    res.render('layout', {
+      title: 'Analytics Dashboard',
+      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'analytics_dashboard.ejs'), 'utf-8'), {
+        employment_types: et,
+        staffing: sa,
+        company_tenure: ct,
+        skill_frequency: sf,
+        career_phases: ph
+      }, { views: [path.join(__dirname, 'views')] }),
+      contact_info: resume_data.contact_info,
+      escapeHtml: escapeHtml
+    });
+  } else {
+    res.json({
+      employment_types: et,
+      staffing: sa,
+      company_tenure: ct,
+      skill_frequency: sf,
+      career_phases: ph
+    });
   }
 });

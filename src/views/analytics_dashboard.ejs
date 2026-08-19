@@ -1,0 +1,352 @@
+<div class="analytics-grid">
+  <!-- Employment Type Pie/Donut -->
+  <section class="analytics-section">
+    <h2 class="section-title">Employment Types</h2>
+    <div id="employment-type-chart"></div>
+  </section>
+
+  <!-- Staffing Analysis -->
+  <section class="analytics-section">
+    <h2 class="section-title">Staffing vs Direct Hire</h2>
+    <div id="staffing-chart"></div>
+  </section>
+
+  <!-- Company Tenure -->
+  <section class="analytics-section">
+    <h2 class="section-title">Company Tenure (Years)</h2>
+    <div id="company-tenure-chart"></div>
+  </section>
+
+  <!-- Top Skills -->
+  <section class="analytics-section analytics-section-wide">
+    <h2 class="section-title">Most Used Skills</h2>
+    <div id="top-skills-chart"></div>
+  </section>
+
+  <!-- Career Phases Summary -->
+  <section class="analytics-section analytics-section-wide">
+    <h2 class="section-title">Career Phases Overview</h2>
+    <div id="phases-summary-chart"></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+// ============================================================
+// Theme token reader — reads CSS custom properties for chart colors
+// ============================================================
+(function() {
+  var cs = getComputedStyle(document.documentElement);
+  window.__themeTokens = {
+    chart: [
+      cs.getPropertyValue('--chart-1').trim(),
+      cs.getPropertyValue('--chart-2').trim(),
+      cs.getPropertyValue('--chart-3').trim(),
+      cs.getPropertyValue('--chart-4').trim(),
+      cs.getPropertyValue('--chart-5').trim(),
+      cs.getPropertyValue('--chart-6').trim()
+    ],
+    text1: cs.getPropertyValue('--text-1').trim(),
+    text2: cs.getPropertyValue('--text-2').trim(),
+    text3: cs.getPropertyValue('--text-3').trim(),
+    border: cs.getPropertyValue('--border').trim(),
+    surface: cs.getPropertyValue('--surface').trim(),
+    surface2: cs.getPropertyValue('--surface-2').trim(),
+    nightOpacity: cs.getPropertyValue('--chart-opacity').trim() || '1'
+  };
+})();
+
+// ============================================================
+// Employment Type — Donut Chart
+// ============================================================
+(function() {
+  var data = <%- JSON.stringify(employment_types) %>;
+  var tokens = window.__themeTokens;
+  var width = 300, height = 300;
+  var radius = Math.min(width, height) / 2 - 10;
+
+  var svg = d3.select('#employment-type-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+  var color = d3.scaleOrdinal().range(tokens.chart);
+
+  var pie = d3.pie()
+    .value(function(d) { return d.count; })
+    .sort(null);
+
+  var arc = d3.arc().innerRadius(radius * 0.5).outerRadius(radius);
+  var arcHover = d3.arc().innerRadius(radius * 0.5).outerRadius(radius + 8);
+
+  var tooltip = d3.select('#employment-type-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
+
+  svg.selectAll('.donut-slice')
+    .data(pie(data))
+    .enter()
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', function(d) { return color(d.data.type); })
+    .attr('stroke', tokens.surface)
+    .attr('stroke-width', 2)
+    .style('cursor', 'pointer')
+    .style('opacity', function(d) { return tokens.nightOpacity; })
+    .on('mouseover', function(event, d) {
+      d3.select(this).transition().duration(200).attr('d', arcHover);
+      tooltip.style('opacity', 1)
+        .html('<strong>' + d.data.label + '</strong><br>' + d.data.count + ' (' + d.data.percentage + '%)');
+    })
+    .on('mousemove', function(event) {
+      tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 12) + 'px');
+    })
+    .on('mouseout', function() {
+      d3.select(this).transition().duration(200).attr('d', arc);
+      tooltip.style('opacity', 0);
+    });
+
+  // Center label
+  svg.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '0.35em')
+    .style('font-size', '2rem')
+    .style('font-weight', '700')
+    .style('fill', tokens.text1)
+    .text(data.length > 0 ? data.reduce(function(s, d) { return s + d.count; }, 0) : 0);
+
+  svg.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '1.8em')
+    .style('font-size', '0.85rem')
+    .style('fill', tokens.text3)
+    .text('positions');
+
+})();
+
+// ============================================================
+// Staffing — Stacked Bar
+// ============================================================
+(function() {
+  var staffing = <%- JSON.stringify(staffing) %>;
+  var tokens = window.__themeTokens;
+  var width = 300, height = 160;
+  var barW = 60;
+
+  var svg = d3.select('#staffing-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('width', '100%')
+    .attr('height', '100%');
+
+  var data = [
+    { label: 'Direct', value: staffing.direct.count },
+    { label: 'Via Staffing', value: staffing.with_staffing.count }
+  ];
+
+  var x = d3.scaleBand().domain(data.map(function(d) { return d.label; })).range([0, width]).padding(0.4);
+  var y = d3.scaleLinear().domain([0, d3.max(data, function(d) { return d.value; }) * 1.2]).range([height, 0]);
+
+  svg.append('g').selectAll('rect').data(data).enter().append('rect')
+    .attr('x', function(d) { return x(d.label); })
+    .attr('y', function(d) { return y(d.value); })
+    .attr('width', x.bandwidth())
+    .attr('height', function(d) { return height - y(d.value); })
+    .attr('rx', 4)
+    .attr('fill', function(d, i) { return tokens.chart[i % tokens.chart.length]; })
+    .style('opacity', tokens.nightOpacity);
+
+  svg.append('g').call(d3.axisLeft(y).ticks(5)).attr('class', 'd3-axis');
+
+  // Value labels above bars
+  svg.selectAll('.value-label').data(data).enter().append('text')
+    .attr('x', function(d) { return x(d.label) + x.bandwidth() / 2; })
+    .attr('y', function(d) { return y(d.value) - 8; })
+    .attr('text-anchor', 'middle')
+    .style('font-size', '0.9rem')
+    .style('font-weight', '600')
+    .style('fill', tokens.text1)
+    .text(function(d) { return d.value; });
+
+  // Category labels below bars
+  var displayLabels = ['Direct Hire', 'Staffing'];
+  svg.selectAll('.category-label').data(data).enter().append('text')
+    .attr('x', function(d, i) { return x(d.label) + x.bandwidth() / 2; })
+    .attr('y', height + 16)
+    .attr('text-anchor', 'middle')
+    .style('font-size', '0.85rem')
+    .style('font-weight', '600')
+    .style('fill', tokens.text2)
+    .text(function(d, i) { return displayLabels[i]; });
+
+  // Staffing firm breakdown
+  var firms = staffing.staffing_firms || [];
+  if (firms.length > 0) {
+    var firmList = svg.append('g').attr('transform', 'translate(' + width / 2 + ',' + (height + 10) + ')');
+    firmList.append('text')
+      .attr('text-anchor', 'middle')
+      .style('font-size', '0.75rem')
+      .style('fill', tokens.text3)
+      .text('Firms: ' + firms.map(function(f) { return f.name; }).join(', '));
+  }
+})();
+
+// ============================================================
+// Company Tenure — Horizontal Bar
+// ============================================================
+(function() {
+  var data = <%- JSON.stringify(company_tenure) %>.slice(0, 12);
+  var tokens = window.__themeTokens;
+  var width = 300, height = data.length * 26 + 40;
+
+  var svg = d3.select('#company-tenure-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('width', '100%')
+    .attr('height', '100%');
+
+  var y = d3.scaleBand()
+    .domain(data.map(function(d) { return d.company; }))
+    .range([10, height - 10])
+    .padding(0.2);
+
+  var x = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d) { return d.total_years; }) * 1.2])
+    .range([0, width - 50]);
+
+  var color = d3.scaleOrdinal().range(tokens.chart);
+
+  svg.selectAll('.tenure-bar').data(data).enter().append('rect')
+    .attr('y', function(d) { return y(d.company); })
+    .attr('height', y.bandwidth())
+    .attr('x', 0)
+    .attr('width', function(d) { return x(d.total_years); })
+    .attr('rx', 3)
+    .attr('fill', function(d) { return color(d.company); })
+    .style('opacity', tokens.nightOpacity);
+
+  svg.selectAll('.tenure-label').data(data).enter().append('text')
+    .attr('x', function(d) { return x(d.total_years) + 4; })
+    .attr('y', function(d) { return y(d.company) + y.bandwidth() / 2 + 4; })
+    .style('font-size', '0.7rem')
+    .style('fill', tokens.text2)
+    .text(function(d) { return d.total_years.toFixed(1) + 'y'; });
+
+  svg.selectAll('.company-label').data(data).enter().append('text')
+    .attr('x', -4)
+    .attr('y', function(d) { return y(d.company) + y.bandwidth() / 2 + 4; })
+    .attr('text-anchor', 'end')
+    .style('font-size', '0.7rem')
+    .style('fill', tokens.text2)
+    .text(function(d) {
+      var short = d.company.replace(/Inc\./g, '').replace(/Company$/, '').replace(/\,.*$/, '').trim();
+      return short.length > 22 ? short.slice(0, 20) + '...' : short;
+    });
+})();
+
+// ============================================================
+// Top Skills — Compact Horizontal Bar (top 15)
+// ============================================================
+(function() {
+  var data = <%- JSON.stringify(skill_frequency) %>.slice(0, 15);
+  var tokens = window.__themeTokens;
+  var container = document.getElementById('top-skills-chart');
+  var margin = { top: 10, right: 40, bottom: 20, left: 110 };
+  var barH = 24;
+  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
+  var height = data.length * (barH + 2);
+
+  var svg = d3.select('#top-skills-chart').append('svg')
+    .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var x = d3.scaleLinear().domain([0, d3.max(data, function(d) { return d.count; })]).range([0, width]);
+  var y = d3.scaleBand().domain(data.map(function(d) { return d.skill_name; })).range([0, height]).padding(0.15);
+  var color = d3.scaleOrdinal().range(tokens.chart);
+
+  svg.selectAll('rect').data(data).enter().append('rect')
+    .attr('y', function(d) { return y(d.skill_name); })
+    .attr('height', y.bandwidth())
+    .attr('x', 0)
+    .attr('width', function(d) { return x(d.count); })
+    .attr('rx', 3)
+    .attr('fill', function(d) { return color(d.skill_name); })
+    .attr('opacity', 0.8 * parseFloat(tokens.nightOpacity));
+
+  svg.selectAll('.skill-label').data(data).enter().append('text')
+    .attr('x', function(d) { return x(d.count) + 6; })
+    .attr('y', function(d) { return y(d.skill_name) + y.bandwidth() / 2 + 4; })
+    .style('font-size', '0.75rem')
+    .style('fill', tokens.text2)
+    .text(function(d) { return d.skill_name + ' (' + d.count + ')'; });
+})();
+
+// ============================================================
+// Career Phases — Timeline Summary
+// ============================================================
+(function() {
+  var phases = <%- JSON.stringify(career_phases) %>;
+  var tokens = window.__themeTokens;
+  var container = document.getElementById('phases-summary-chart');
+  var width = Math.min(container.parentElement.clientWidth - 40, 900);
+  var height = 200;
+
+  var svg = d3.select('#phases-summary-chart').append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('width', '100%')
+    .attr('height', '100%');
+
+  var phaseW = width / phases.length;
+
+  var color = d3.scaleOrdinal().range(tokens.chart);
+
+  phases.forEach(function(phase, i) {
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + (i * phaseW + 10) + ',0)');
+
+    // Phase background
+    g.append('rect')
+      .attr('width', phaseW - 20)
+      .attr('height', height - 20)
+      .attr('rx', 6)
+      .attr('fill', tokens.surface2)
+      .attr('stroke', tokens.border);
+
+    // Label
+    g.append('text')
+      .attr('x', (phaseW - 20) / 2)
+      .attr('y', 18)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '0.85rem')
+      .style('font-weight', '600')
+      .style('fill', tokens.text1)
+      .text(phase.phase_name + ' (' + phase.positions.length + ')');
+
+    // Top skills as small chips
+    phase.dominant_skills.slice(0, 5).forEach(function(skill, j) {
+      g.append('rect')
+        .attr('x', 8)
+        .attr('y', 32 + j * 22)
+        .attr('width', (phaseW - 20) - 16)
+        .attr('height', 18)
+        .attr('rx', 3)
+        .attr('fill', color(skill.skill_name))
+        .attr('opacity', 0.8 * parseFloat(tokens.nightOpacity));
+
+      g.append('text')
+        .attr('x', 12)
+        .attr('y', 32 + j * 22 + 13)
+        .style('font-size', '0.7rem')
+        .style('fill', tokens.surface === 'rgba(17, 23, 43, .72)' || tokens.surface.startsWith('rgba') ? '#fff' : '#fff')
+        .text(skill.skill_name + ' x' + skill.count);
+    });
+  });
+})();
+</script>

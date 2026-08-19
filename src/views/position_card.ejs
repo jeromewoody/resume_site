@@ -1,4 +1,5 @@
-<article id="card-<%= posId %>" class="position-card">
+<% var isCurrent = dateEnded === undefined || dateEnded === null || dateEnded === 'Present'; %>
+<article id="card-<%= posId %>" class="position-card<% if (isCurrent) { %> is-current<% } %>">
   <div class="position-content">
     <header class="position-header">
       <h3 class="position-title"><%= escapeHtml(posTitle) %></h3>
@@ -21,8 +22,7 @@
         </span>
       </div>
       <div class="employment-type">
-        <span class="type-label">Employment Type: </span>
-        <span class="type-value"><%= formatType(positionType) %></span>
+        <span class="type-value <%= positionType %>"><%= formatType(positionType) %></span>
       </div>
     </div>
 
@@ -31,7 +31,13 @@
       <h4 class="skills-title">Technologies &amp; Skills</h4>
       <div class="skills-list">
         <% skills.forEach(function(s) { %>
-          <span class="skill-tag" hx-get="/api/positions/by-skill/<%= s.skill_id %>" hx-target="#results" hx-swap="outerHTML" style="cursor:pointer"><%= escapeHtml(s.skill_value) %></span>
+          <button class="skill-tag"
+                  hx-get="/api/positions/by-skill/<%= s.skill_id %>"
+                  hx-target="#results"
+                  hx-swap="outerHTML"
+                  aria-label="Filter by <%= escapeHtml(s.skill_value) %>">
+            <%= escapeHtml(s.skill_value) %>
+          </button>
         <% }) %>
       </div>
     </div>
@@ -49,12 +55,13 @@
     <% } %>
 
     <div class="position-details-toggle">
-      <span class="details-link"
-            hx-get="/api/position/<%= posId %>/card"
-            hx-target="#card-<%= posId %>"
-            hx-swap="outerHTML">
+      <button class="details-link"
+              hx-get="/api/position/<%= posId %>/card"
+              hx-target="#card-<%= posId %>"
+              hx-swap="outerHTML"
+              aria-label="View details for <%= escapeHtml(posTitle) %>">
         View Details
-      </span>
+      </button>
     </div>
   </div>
 </article>

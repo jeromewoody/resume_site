@@ -41,6 +41,7 @@
 	<skill skill_id="python">Python</skill>
 	<skill skill_id="groovy">Groovy</skill>
 	<skill skill_id="react">React</skill>
+	<skill skill_id="isml">ISML</skill>
 	<specialization_group label="Education">
 		<specialization>Syracuse University - BS in Information Management and Technology 1998 - 2002</specialization>
 		<specialization>University of Washington - Graduate Studies in Library and Information Science 2002 - 2004</specialization>
@@ -118,6 +119,10 @@
 		<company_name>Medio, Inc.</company_name>
 		<company_location>Seattle, Wa</company_location>
 	</company>
+	<company company_id="gorilla_gizmos">
+		<company_name>Gorilla Gizmos</company_name>
+		<company_location>Seattle, Wa</company_location>
+	</company>
 	<company company_id="oclc">
 		<company_name>OCLC, Inc.</company_name>
 		<company_location>Seattle, Wa</company_location>
@@ -145,6 +150,10 @@
 	<company company_id="seattle_weekly">
 		<company_name>Seattle Weekly</company_name>
 		<company_location>Seattle, Wa</company_location>
+	</company>
+	<company company_id="lululemon">
+		<company_name>Lululemon Athletica</company_name>
+		<company_location>Moncton, NB, Canada</company_location>
 	</company>
 	<company company_id="discogs">
 		<company_name>Discogs</company_name>
@@ -182,6 +191,18 @@
 		<staffing_name>Aditi Staffing</staffing_name>
 		<staffing_location>Bellevue, Wa</staffing_location>
 	</staffing_company>
+	<position position_id="lu0820" company_fk="lululemon" skills_fk="html css javascript jquery isml">
+		<position_title position_type="contract">Senior Front End Developer/Lead, International Search, Browse, and SEO</position_title>
+		<date_started month="8" year="2020" />
+		<date_ended month="1" year="2022" />
+		<position_summary>
+			<summary_item>Responsible for front-end development for all product search and browsing aspects of Lululemon's international E-commerce sites (Europe, Middle East, Asia-Pacific).</summary_item>
+			<summary_item>Oversaw off-shore team of junior front-end developers (based in India).</summary_item>
+			<summary_item>Participated in Jira ticket creation, refinement and assignment to junior devs.</summary_item>
+			<summary_item>Personally worked on front-end development for Lululemon International E-commerce sites built using Salesforce Commerce Cloud, Salesforce Reference Architecture, adding new features and fixing issues/bugs.</summary_item>
+			<summary_item>Built software tools to automate workflow and to augment analysis work.</summary_item>
+		</position_summary>
+	</position>
 	<position position_id="dis2022" company_fk="discogs" skills_fk="html react css javascript python nodejs xml">
 		<position_title position_type="full_time">Sr. Web Developer, UX</position_title>
 		<date_started month="1" year="2022" />
@@ -201,6 +222,19 @@
 			<summary_item>Responsible for front-end development of Amazon “Second Chance” portal and “The Climate Pledge” website.</summary_item>
 			<summary_item>Created content widgets that are now embedded in Amazon.com “Your Order’s” page, a highly visible part of Amazon’s user experience.</summary_item>
 			<summary_item>Worked with team designers and software developers to create interactive, responsive web components using JSP, Spring MVC, SCSS, and ReactJS, along with internal Amazon technologies.</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="amz0520" company_fk="amazon" staffing_fk="creative_circle" skills_fk="typescript react">
+		<position_title position_type="contract">Web Developer III, Amazon Transportation Service</position_title>
+		<date_started month="5" year="2020" />
+		<date_ended month="8" year="2020" />
+		<position_summary>
+			<summary_item>Lead front-end developer for freight.amazon.com/blog and relay.amazon.com/blog.</summary_item>
+			<summary_item>Built web application for blogs using React, Meridian, Katal and Lego.</summary_item>
+			<summary_item>Created a single blog platform that can be used by both websites.</summary_item>
+			<summary_item>Worked with developers on Amazon Freight and Amazon Relay for Carrier in integrating blog into websites.</summary_item>
+			<summary_item>Participated in weekly demos with stakeholders.</summary_item>
+			<summary_item>Created Lego publishing training documents and videos.</summary_item>
 		</position_summary>
 	</position>
 	<position position_id="amz0218" company_fk="amazon" staffing_fk="aditi" skills_fk="html css xml xpath xslt javascript ruby python">
@@ -309,6 +343,17 @@ issues involving the dictionary feature in Kindle apps and devices.</summary_ite
 			<summary_item>Worked on various Front end features for upcoming version of Zumiez.com using Magento 1.10.</summary_item>
 		</position_summary>
 	</position>
+	<position position_id="med0311" company_fk="medio" staffing_fk="greythorn" skills_fk="css javascript">
+		<position_title position_type="contract">Software Developer</position_title>
+		<date_started month="3" year="2011" />
+		<date_ended month="4" year="2011" />
+		<position_summary>
+			<summary_item>Identified and resolved functional and layout issues for T-Mobile Web2Go mobile web portal.</summary_item>
+			<summary_item>Developed web front-end for a variety of mobile phone web browsers (Internet Explorer Mobile, NetFront, Webkit).</summary_item>
+			<summary_item>Debugged CSS and JavaScript issues related to running on various phone models.</summary_item>
+			<summary_item>Participated in daily Scrum / Agile team development processes.</summary_item>
+		</position_summary>
+	</position>
 	<position position_id="quo0811" company_fk="quorum_review" staffing_fk="aim_consulting" skills_fk="html css javascript">
 		<position_title position_type="contract">Web Developer, User Interface</position_title>
 		<date_started month="8" year="2011" />
@@ -352,6 +397,16 @@ issues involving the dictionary feature in Kindle apps and devices.</summary_ite
 			<summary_item>Advised Zaaz developers and project managers on various open source development issues.</summary_item>
 		</position_summary>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 	</position>
+	<position position_id="gor0410" company_fk="gorilla_gizmos" skills_fk="java xml php">
+		<position_title position_type="full_time">Founder</position_title>
+		<date_started month="4" year="2010" />
+		<date_ended month="4" year="2011" />
+		<position_summary>
+			<summary_item>Founder and lead of a team of developers working on software products for the Android Platform.</summary_item>
+			<summary_item>Designed the system architecture for two active software projects.</summary_item>
+			<summary_item>Lead developer for developing software in Java, PHP, SOAP and other technologies needed for projects' designs.</summary_item>
+		</position_summary>
+	</position>
 	<position position_id="sea1209" company_fk="seattle_times" staffing_fk="rylem" skills_fk="html css">
 		<position_title position_type="contract">Web Developer</position_title>
 		<date_started month="12" year="2009" />
@@ -389,7 +444,7 @@ issues involving the dictionary feature in Kindle apps and devices.</summary_ite
 			<summary_item>Participated in creating Grist content for website, posting articles regarding energy and technology issues.</summary_item>
 		</position_summary>
 	</position>
-	<position position_id="seu082005" company_fk="seattle_university" skills_fk="html css xml xpath xpointer xslt php mysql java">
+	<position position_id="seu082005" company_fk="seattle_weekly" skills_fk="php mysql">
 		<position_title position_type="full_time">Software Developer - Swlists.com</position_title>
 		<date_started month="2" year="2005" />
 		<date_ended month="8" year="2005" />
@@ -398,7 +453,18 @@ issues involving the dictionary feature in Kindle apps and devices.</summary_ite
 			<summary_item>Created style sheets for site using CSS.</summary_item>
 			<summary_item>Developed system functionality and design based on rigorous analysis of competing websites and related usability data.</summary_item>
 			<summary_item>Software code has been utilized by the Seattle Weekly, Minneapolis City Pages, and other Village Voice Media owned newspapers.</summary_item>
-			<summary_item>Served as core developer for Swlists.com website, developing systems code for all three tiers of the project (database, middleware code, and interface code).</summary_item>
+		</position_summary>
+	</position>
+	<position position_id="su082005" company_fk="seattle_university" skills_fk="html css java xslt php mysql">
+		<position_title position_type="full_time">Application Developer</position_title>
+		<date_started month="8" year="2005" />
+		<date_ended month="6" year="2006" />
+		<position_summary>
+			<summary_item>Created dynamic pages for school intranet using PHP, MySQL, Java, and XSL.</summary_item>
+			<summary_item>Developed programs and system tools for school staff and faculty.</summary_item>
+			<summary_item>Hand-coded static web pages using HTML 4.01 Transitional and CSS.</summary_item>
+			<summary_item>Developed and maintained core systems software for the school's content management infrastructure, main website, and information kiosk systems.</summary_item>
+			<summary_item>Provided systems support for both internal (students, faculty, staff) and external clients related to custom information systems and university websites.</summary_item>
 		</position_summary>
 	</position>
 </resume>

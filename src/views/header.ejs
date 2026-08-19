@@ -1,7 +1,55 @@
 <header class="resume-header">
-  <h1 class="person-name"><%= escapeHtml(contact_info.name) %></h1>
-  <div class="contact-info">
-    <div class="contact-email"><%= escapeHtml(contact_info.email) %></div>
-    <div class="contact-phone"><%= escapeHtml(contact_info.phone) %></div>
+  <div class="header-row">
+    <div class="monogram"><%= escapeHtml(contact_info.name.charAt(0)) %></div>
+    <div>
+      <h1 class="person-name"><%= escapeHtml(contact_info.name) %></h1>
+      <div class="person-role">Senior Frontend Engineer</div>
+    </div>
   </div>
+  <div class="contact-info">
+    <span class="contact-email"><%= escapeHtml(contact_info.email) %></span>
+    <span class="contact-phone"><%= escapeHtml(contact_info.phone) %></span>
+  </div>
+  <nav class="analytics-nav">
+    <a href="/">Resume</a>
+    <a href="/analytics/distribution">Analytics Dashboard</a>
+    <a href="/analytics/skills">Skills</a>
+    <a href="/analytics/timeline">Timeline</a>
+  </nav>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Cycle theme">
+    <span class="theme-toggle-icon" id="theme-icon">☀️</span>
+    <span id="theme-label">Morning</span>
+  </button>
 </header>
+<script>
+  // Theme toggle: cycle through themes, persist to localStorage
+  (function() {
+    var themes = ['porcelain', 'editorial', 'slate-noir'];
+    var labels = { porcelain: 'Morning', editorial: 'Afternoon', 'slate-noir': 'Evening' };
+    var icons  = { porcelain: '☀️', editorial: '🌤', 'slate-noir': '🌙' };
+    var btn = document.getElementById('theme-toggle');
+    var iconEl = document.getElementById('theme-icon');
+    var labelEl = document.getElementById('theme-label');
+
+    if (!btn) return;
+
+    btn.addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var idx = themes.indexOf(current);
+      var next = themes[(idx + 1) % themes.length];
+      document.documentElement.setAttribute('data-theme', next);
+      document.documentElement.style.colorScheme =
+        (next === 'slate-noir') ? 'dark' : 'light';
+      iconEl.textContent = icons[next];
+      labelEl.textContent = labels[next];
+      localStorage.setItem('resume-theme', next);
+    });
+
+    // Initialize display to match current theme
+    var initTheme = document.documentElement.getAttribute('data-theme');
+    if (initTheme && icons[initTheme]) {
+      iconEl.textContent = icons[initTheme];
+      labelEl.textContent = labels[initTheme];
+    }
+  })();
+</script>

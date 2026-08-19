@@ -1,11 +1,16 @@
-<%- include('header', { contact_info: contact_info, escapeHtml: escapeHtml }) %>
-
 <!-- Skills Overview Section -->
 <section class="skills-section">
   <h2 class="section-title">Skills</h2>
-  <div class="skills-container">
+  <div class="skills-container" role="list">
     <% skills.forEach(function(s) { %>
-      <span class="skill-item" hx-get="/api/positions/by-skill/<%= s.skill_id %>" hx-target="#results" hx-swap="outerHTML" style="cursor:pointer"><%= escapeHtml(s.skill_value) %></span>
+      <button class="skill-item"
+              hx-get="/api/positions/by-skill/<%= s.skill_id %>"
+              hx-target="#results"
+              hx-swap="outerHTML"
+              role="listitem"
+              aria-label="Filter by <%= escapeHtml(s.skill_value) %>">
+        <%= escapeHtml(s.skill_value) %>
+      </button>
     <% }) %>
   </div>
 </section>
