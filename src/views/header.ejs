@@ -1,6 +1,8 @@
 <header class="resume-header">
   <div class="header-row">
-    <div class="monogram"><%= escapeHtml(contact_info.name.charAt(0)) %></div>
+    <div class="hatman-avatar" id="hatman-avatar">
+      <img src="/images/hat-nyc-blue.png" alt="Jerome Woody" id="hatman-img">
+    </div>
     <div>
       <h1 class="person-name"><%= escapeHtml(contact_info.name) %></h1>
       <div class="person-role">Senior Frontend Engineer</div>
@@ -22,6 +24,20 @@
   </button>
 </header>
 <script>
+  // HatMan icon: swap color based on theme
+  var hatmanIcons = {
+    porcelain: '/images/hat-nyc-blue.png',
+    editorial: '/images/hat-nyc-orange.png',
+    'slate-noir': '/images/hat-nyc-navy.png'
+  };
+
+  function updateHatmanIcon(theme) {
+    var img = document.getElementById('hatman-img');
+    if (img && hatmanIcons[theme]) {
+      img.src = hatmanIcons[theme];
+    }
+  }
+
   // Theme toggle: cycle through themes, persist to localStorage
   (function() {
     var themes = ['porcelain', 'editorial', 'slate-noir'];
@@ -35,21 +51,22 @@
 
     btn.addEventListener('click', function() {
       var current = document.documentElement.getAttribute('data-theme');
-      var idx = themes.indexOf(current);
-      var next = themes[(idx + 1) % themes.length];
+      var next = themes[(themes.indexOf(current) + 1) % themes.length];
       document.documentElement.setAttribute('data-theme', next);
       document.documentElement.style.colorScheme =
         (next === 'slate-noir') ? 'dark' : 'light';
       iconEl.textContent = icons[next];
       labelEl.textContent = labels[next];
       localStorage.setItem('resume-theme', next);
+      updateHatmanIcon(next);
     });
 
-    // Initialize display to match current theme
+    // Initialize HatMan icon + display to match current theme
     var initTheme = document.documentElement.getAttribute('data-theme');
     if (initTheme && icons[initTheme]) {
       iconEl.textContent = icons[initTheme];
       labelEl.textContent = labels[initTheme];
+      updateHatmanIcon(initTheme);
     }
   })();
 </script>

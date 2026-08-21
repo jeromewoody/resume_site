@@ -15,6 +15,9 @@ application.use(cors());
 // Serve static CSS
 application.use('/css', express.static(path.join(__dirname, 'public/css')));
 
+// Serve static images
+application.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 const { build } = require('./data/model');
 const analytics = require('./data/analytics');
 let resume_data = {};
