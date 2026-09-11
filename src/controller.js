@@ -167,8 +167,12 @@ function buildLookupMaps() {
   }
 })();
 
-application.listen(3001, () => {
-  console.log('Server listening on port 3001');
+// Listen on HOST:PORT (both env-configurable; defaults preserve prior behavior)
+const host = process.env.HOST || '0.0.0.0';
+const port = parseInt(process.env.PORT, 10) || 3001;
+
+application.listen(port, host, () => {
+  console.log(`Server listening on ${host}:${port}`);
 });
 
 // Helper: check if request wants HTML
