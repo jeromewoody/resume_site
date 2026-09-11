@@ -53,15 +53,5 @@
       </ul>
     </div>
     <% } %>
-
-    <div class="position-details-toggle">
-      <button class="details-link"
-              hx-get="/api/position/<%= posId %>/card"
-              hx-target="#card-<%= posId %>"
-              hx-swap="outerHTML"
-              aria-label="View details for <%= escapeHtml(posTitle) %>">
-        View Details
-      </button>
-    </div>
   </div>
 </article>
