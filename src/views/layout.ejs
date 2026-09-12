@@ -14,6 +14,9 @@
   <script>
     // ============================================================
     // Time-based theme detection (runs before CSS loads — zero FOUC)
+    // The live re-evaluation loop (themeManager) lives in header.ejs,
+    // where DOM is available. This head IIFE only applies the initial
+    // theme synchronously so the first paint is correct.
     // ============================================================
     (function() {
       var hour = new Date().getHours();
@@ -22,19 +25,28 @@
       else if (hour >= 12 && hour < 17) theme = 'editorial';
       else theme = 'slate-noir';
 
-      // Respect manual override
-      var saved = localStorage.getItem('resume-theme');
-      if (saved && ['porcelain','editorial','slate-noir'].indexOf(saved) !== -1) {
-        theme = saved;
-      }
+      // Manual override is intentionally in-memory only (set by themeManager
+      // on click); it is NOT persisted to localStorage, so the next time
+      // period reverts to the time-based default. No read here.
 
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme =
         (theme === 'slate-noir') ? 'dark' : 'light';
-
-      // Night period class
-      if (hour >= 22 || hour < 5) {
-        document.body.classList.add('night-mode');
+    })();
+  </script>
+  <script>
+    // night-mode class needs <body> to exist, so defer to DOMContentLoaded.
+    // (Previously this ran in the head IIFE where document.body was null.)
+    (function() {
+      function applyNight() {
+        var h = new Date().getHours();
+        if (h >= 22 || h < 5) document.body.classList.add('night-mode');
+        else document.body.classList.remove('night-mode');
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyNight);
+      } else {
+        applyNight();
       }
     })();
   </script>

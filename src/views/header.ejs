@@ -38,7 +38,16 @@
     }
   }
 
-  // Theme toggle: cycle through themes, persist to localStorage
+  // ============================================================
+  // themeManager: time-based theme that re-evaluates live.
+  //   - Time-based theme is the default (porcelain 05–12, editorial
+  //     12–17, slate-noir otherwise).
+  //   - A manual click sets an in-memory override for this page
+  //     session; it is NOT persisted (so it never silently defeats
+  //     the time-based theme on the next visit).
+  //   - When the time period actually changes, the override is
+  //     dropped and the time-based theme is applied automatically.
+  // ============================================================
   (function() {
     var themes = ['porcelain', 'editorial', 'slate-noir'];
     var labels = { porcelain: 'Morning', editorial: 'Afternoon', 'slate-noir': 'Evening' };
@@ -49,24 +58,59 @@
 
     if (!btn) return;
 
-    btn.addEventListener('click', function() {
-      var current = document.documentElement.getAttribute('data-theme');
-      var next = themes[(themes.indexOf(current) + 1) % themes.length];
-      document.documentElement.setAttribute('data-theme', next);
+    function computeTimeTheme() {
+      var hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) return 'porcelain';
+      if (hour >= 12 && hour < 17) return 'editorial';
+      return 'slate-noir';
+    }
+
+    // manual override lives only in this variable (page-session scope)
+    var override = null;
+    // remember which time-based theme was last applied, so we only
+    // react when the period actually changes
+    var lastTimeTheme = computeTimeTheme();
+
+    function apply(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.style.colorScheme =
-        (next === 'slate-noir') ? 'dark' : 'light';
-      iconEl.textContent = icons[next];
-      labelEl.textContent = labels[next];
-      localStorage.setItem('resume-theme', next);
-      updateHatmanIcon(next);
+        (theme === 'slate-noir') ? 'dark' : 'light';
+      if (iconEl) iconEl.textContent = icons[theme];
+      if (labelEl) labelEl.textContent = labels[theme];
+      updateHatmanIcon(theme);
+    }
+
+    function activeTheme() {
+      return override || computeTimeTheme();
+    }
+
+    // Poll cheaply: only act when the time-based period changes.
+    function tick() {
+      var t = computeTimeTheme();
+      if (t !== lastTimeTheme) {
+        // A new time period started — drop any manual override so the
+        // visitor always ends up on the time-appropriate theme.
+        lastTimeTheme = t;
+        override = null;
+        apply(t);
+      }
+    }
+
+    btn.addEventListener('click', function() {
+      var next = themes[(themes.indexOf(activeTheme()) + 1) % themes.length];
+      override = next;           // in-memory only; survives until period change
+      apply(next);
     });
 
-    // Initialize HatMan icon + display to match current theme
-    var initTheme = document.documentElement.getAttribute('data-theme');
-    if (initTheme && icons[initTheme]) {
-      iconEl.textContent = icons[initTheme];
-      labelEl.textContent = labels[initTheme];
-      updateHatmanIcon(initTheme);
-    }
+    // Initialize to the time-based theme (matches the head IIFE).
+    apply(computeTimeTheme());
+
+    // Re-evaluate once a minute; also run on visibility return so a
+    // tab that was backgrounded across a boundary corrects immediately.
+    setInterval(tick, 60000);
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) tick();
+    });
+    window.addEventListener('focus', tick);
   })();
 </script>
