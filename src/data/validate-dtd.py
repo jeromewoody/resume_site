@@ -2,6 +2,7 @@
 """Validate jerome_woody_resume.xml against resume.dtd constraints."""
 
 import xml.etree.ElementTree as ET
+import os
 import sys
 from collections import OrderedDict
 
@@ -185,7 +186,8 @@ def validate(xml_path):
     return errors
 
 if __name__ == '__main__':
-    xml_path = '/home/jerome/Workspace/resume_site/src/data/jerome_woody_resume.xml'
+    xml_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'jerome_woody_resume.xml')
     errors = validate(xml_path)
     if errors:
         print(f"VALIDATION FAILED: {len(errors)} error(s)")
