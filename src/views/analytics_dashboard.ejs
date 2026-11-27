@@ -429,7 +429,7 @@
     d3.select(this).style('opacity', barOpacity(d));
   })
   .on('click', function(event, d) {
-    window.location.href = '/skill/' + d.skill_id;
+    window.location.href = '<%= BASE %>/skill/' + d.skill_id;
   });
 
   // Animate bars
@@ -476,7 +476,7 @@
       .style('color', tokens.text2)
       .style('background', tokens.surface2)
       .style('cursor', 'pointer')
-      .on('click', function(event, d) { window.location.href = '/skill/' + d.skill_id; });
+      .on('click', function(event, d) { window.location.href = '<%= BASE %>/skill/' + d.skill_id; });
   }
 })();
 
@@ -564,7 +564,7 @@
         .text(skill.count);
 
       row
-        .on('click', function() { window.location.href = '/skill/' + skill.skill_id; })
+        .on('click', function() { window.location.href = '<%= BASE %>/skill/' + skill.skill_id; })
         .on('mouseover', function() {
           tooltip.style('opacity', 1)
             .html('<strong>' + skill.skill_name + '</strong> · ' + phase.phase_name + '<br>' +
@@ -589,7 +589,7 @@
       .style('cursor', 'pointer')
       .text(phase.positions.length + ' position' + (phase.positions.length !== 1 ? 's' : '') + ' ▸')
       .on('click', function() {
-        window.location.href = '/dates/' + phase.start_year + '-1/' + Math.max(phase.end_year, phase.start_year) + '-12';
+        window.location.href = '<%= BASE %>/dates/' + phase.start_year + '-1/' + Math.max(phase.end_year, phase.start_year) + '-12';
       })
       .on('mouseover', function() { d3.select(this).style('fill', tokens.text1); })
       .on('mouseout', function() { d3.select(this).style('fill', tokens.text3); });

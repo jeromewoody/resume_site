@@ -41,6 +41,14 @@ node controller.js
 
 Then open `http://localhost:3001` in your browser.
 
+### Environment variables
+
+| Var | Default | Purpose |
+|-----|---------|---------|
+| `HOST` | `0.0.0.0` | Bind address |
+| `PORT` | `3001` | Listen port |
+| `BASE_PATH` | *(empty)* | Mount prefix for reverse-proxy subpath deployments (e.g. `BASE_PATH=/resume` serves the site at `http://host/resume/` behind nginx). Views, static assets, and HTMX/XHR endpoints all honor the prefix. |
+
 ## API Endpoints
 
 - `GET /`: Full resume data

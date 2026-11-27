@@ -34,7 +34,7 @@
     <div class="skills-list">
       <% skills.forEach(function(s) { %>
         <button class="skill-tag"
-                hx-get="/api/positions/by-skill/<%= s.skill_id %>"
+                hx-get="<%= BASE %>/api/positions/by-skill/<%= s.skill_id %>"
                 hx-target="#results"
                 hx-swap="outerHTML"
                 aria-label="Filter by <%= s.skill_value %>">
@@ -46,7 +46,7 @@
 
     <% if (_hasSummary) { %>
       <button class="tl-toggle"
-              hx-get="/api/position/<%= posId %>/card"
+              hx-get="<%= BASE %>/api/position/<%= posId %>/card"
               hx-target="#card-<%= posId %>"
               hx-swap="outerHTML"
               aria-expanded="false"

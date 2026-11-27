@@ -3,7 +3,7 @@
   <div class="hero-main">
     <div class="header-row">
       <div class="hatman-avatar" id="hatman-avatar">
-        <img src="/images/hat-nyc-blue.png" alt="Jerome Woody" id="hatman-img">
+        <img src="<%= BASE %>/images/hat-nyc-blue.png" alt="Jerome Woody" id="hatman-img">
       </div>
       <div class="hero-id">
         <h1 class="person-name"><%= contact_info.name %></h1>
@@ -24,8 +24,8 @@
   </div>
   <div class="hero-side">
     <nav class="analytics-nav" aria-label="Site sections">
-      <a href="/">Resume</a>
-      <a href="/analytics/distribution">Analytics Dashboard</a>
+      <a href="<%= BASE %>/">Resume</a>
+      <a href="<%= BASE %>/analytics/distribution">Analytics Dashboard</a>
     </nav>
     <button class="theme-toggle" id="theme-toggle" aria-label="Cycle theme">
       <span class="theme-toggle-icon" id="theme-icon">☀️</span>
@@ -36,9 +36,9 @@
 <script>
   // HatMan icon: swap color based on theme
   var hatmanIcons = {
-    porcelain: '/images/hat-nyc-blue.png',
-    editorial: '/images/hat-nyc-orange.png',
-    'slate-noir': '/images/hat-nyc-navy.png'
+    porcelain: '<%= BASE %>/images/hat-nyc-blue.png',
+    editorial: '<%= BASE %>/images/hat-nyc-orange.png',
+    'slate-noir': '<%= BASE %>/images/hat-nyc-navy.png'
   };
 
   function updateHatmanIcon(theme) {

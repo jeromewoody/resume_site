@@ -54,7 +54,7 @@
       <h4 class="skills-title">Technologies &amp; Skills</h4>
       <div class="skills-list">
         <% skills.forEach(function(s) { %>
-          <a class="skill-tag" href="/skill/<%= s.skill_id %>"><%= s.skill_value %></a>
+          <a class="skill-tag" href="<%= BASE %>/skill/<%= s.skill_id %>"><%= s.skill_value %></a>
         <% }) %>
       </div>
     </div>

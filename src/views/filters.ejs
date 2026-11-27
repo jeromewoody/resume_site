@@ -2,7 +2,7 @@
   <h3 class="filter-title">Filters</h3>
 
   <form id="filter-form"
-        hx-post="/api/filter"
+        hx-post="<%= BASE %>/api/filter"
         hx-target="#results"
         hx-trigger="change from:#filter-form delay:200ms, keyup from:#search-input delay:300ms"
         hx-swap="outerHTML"

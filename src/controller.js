@@ -12,11 +12,21 @@ application.use(express.urlencoded({ extended: true }));
 application.use(express.json());
 application.use(cors());
 
+// Optional mount prefix for reverse-proxy subpath deployments
+// (e.g. BASE_PATH=/resume behind nginx). Empty = served at root.
+// Views receive it as `BASE` so links, assets, and XHR endpoints
+// resolve under the prefix.
+const basePath = (process.env.BASE_PATH || '').replace(/\/+$/, '');
+application.use(function(req, res, next) {
+  res.locals.BASE = basePath;
+  next();
+});
+
 // Serve static CSS
-application.use('/css', express.static(path.join(__dirname, 'public/css')));
+application.use(basePath + '/css', express.static(path.join(__dirname, 'public/css')));
 
 // Serve static images
-application.use('/images', express.static(path.join(__dirname, 'public/images')));
+application.use(basePath + '/images', express.static(path.join(__dirname, 'public/images')));
 
 const { build } = require('./data/model');
 const analytics = require('./data/analytics');
@@ -250,7 +260,7 @@ function wantsHtml(req) {
 function renderPositionList(res, positions, isFullPage) {
   res.render('position_list', {
     positions: positions,
-    escapeHtml: escapeHtml,
+    escapeHtml: escapeHtml, BASE: basePath,
     formatDate: formatDate,
     formatType: formatType,
     getSkillsForPosition: getSkillsForPosition,
@@ -263,7 +273,7 @@ function renderPositionList(res, positions, isFullPage) {
 // ============================================================
 // GET / — Main page (HTML) or full JSON dump
 // ============================================================
-application.get('/', (req, res) => {
+application.get(basePath + '/', (req, res) => {
   if (wantsHtml(req)) {
     var positions = resume_data.positions ? [...resume_data.positions] : [];
     // Sort by date (newest first)
@@ -290,7 +300,7 @@ application.get('/', (req, res) => {
         specialization_groups: resume_data.specialization_groups,
         positions: positions,
         companies: resume_data.companies,
-        escapeHtml: escapeHtml,
+        escapeHtml: escapeHtml, BASE: basePath,
         formatDate: formatDate,
         formatType: formatType,
         getSkillsForPosition: getSkillsForPosition,
@@ -309,7 +319,7 @@ application.get('/', (req, res) => {
 // ============================================================
 // GET /position/:id — Single position (full page with nav) or JSON object
 // ============================================================
-application.get('/position/:id', (req, res) => {
+application.get(basePath + '/position/:id', (req, res) => {
   const positions = resume_data.positions;
   if (!positions) { res.send('{}'); return; }
 
@@ -322,7 +332,7 @@ application.get('/position/:id', (req, res) => {
       position: position_lookup,
       contact_info: resume_data.contact_info,
       skills: resume_data.skills,
-      escapeHtml: escapeHtml,
+      escapeHtml: escapeHtml, BASE: basePath,
       formatDate: formatDate,
       formatType: formatType,
       getSkillsForPosition: getSkillsForPosition,
@@ -345,7 +355,7 @@ application.get('/position/:id', (req, res) => {
 // ============================================================
 // GET /skill/:id — Positions by skill
 // ============================================================
-application.get('/skill/:id', (req, res) => {
+application.get(basePath + '/skill/:id', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
 
@@ -372,7 +382,7 @@ application.get('/skill/:id', (req, res) => {
 // ============================================================
 // GET /company/:id — Positions by company
 // ============================================================
-application.get('/company/:id', (req, res) => {
+application.get(basePath + '/company/:id', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
 
@@ -397,7 +407,7 @@ application.get('/company/:id', (req, res) => {
 // ============================================================
 // GET /staffing/:id — Positions by staffing firm
 // ============================================================
-application.get('/staffing/:id', (req, res) => {
+application.get(basePath + '/staffing/:id', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
 
@@ -422,7 +432,7 @@ application.get('/staffing/:id', (req, res) => {
 // ============================================================
 // GET /dates/:start/:end — Positions in date range
 // ============================================================
-application.get('/dates/:start/:end', (req, res) => {
+application.get(basePath + '/dates/:start/:end', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
 
@@ -471,7 +481,7 @@ application.get('/dates/:start/:end', (req, res) => {
 // ============================================================
 
 // GET /api/positions/by-skill/:id — Positions using a skill (HTML fragment or JSON)
-application.get('/api/positions/by-skill/:id', (req, res) => {
+application.get(basePath + '/api/positions/by-skill/:id', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
   var skillId = req.params.id;
@@ -486,7 +496,7 @@ application.get('/api/positions/by-skill/:id', (req, res) => {
 });
 
 // GET /api/positions/by-company/:id — Positions at a company
-application.get('/api/positions/by-company/:id', (req, res) => {
+application.get(basePath + '/api/positions/by-company/:id', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
   var companyId = req.params.id;
@@ -501,7 +511,7 @@ application.get('/api/positions/by-company/:id', (req, res) => {
 });
 
 // GET /api/positions/by-year/:year — Positions starting in a year
-application.get('/api/positions/by-year/:year', (req, res) => {
+application.get(basePath + '/api/positions/by-year/:year', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send('[]'); return; }
   var year = parseInt(req.params.year);
@@ -519,7 +529,7 @@ application.get('/api/positions/by-year/:year', (req, res) => {
 });
 
 // POST /api/filter — Compound filter endpoint
-application.post('/api/filter', (req, res) => {
+application.post(basePath + '/api/filter', (req, res) => {
   var positions = resume_data.positions ? [...resume_data.positions] : [];
   var body = req.body;
 
@@ -600,7 +610,7 @@ application.post('/api/filter', (req, res) => {
 // ============================================================
 
 // GET /api/position/:id/card — Return expanded card (details view)
-application.get('/api/position/:id/card', (req, res) => {
+application.get(basePath + '/api/position/:id/card', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send(''); return; }
 
@@ -649,7 +659,7 @@ application.get('/api/position/:id/card', (req, res) => {
       summaryItems: position.summary_items,
       isCurrent: _tl.isCurrent,
       isLatest: _tl.isLatest,
-      escapeHtml: escapeHtml,
+      escapeHtml: escapeHtml, BASE: basePath,
       formatDate: formatDate,
       formatType: formatType
     });
@@ -670,7 +680,7 @@ application.get('/api/position/:id/card', (req, res) => {
 });
 
 // GET /api/position/:id/summary — Return collapsed card (summary view)
-application.get('/api/position/:id/summary', (req, res) => {
+application.get(basePath + '/api/position/:id/summary', (req, res) => {
   var positions = resume_data.positions;
   if (!positions) { res.send(''); return; }
 
@@ -719,7 +729,7 @@ application.get('/api/position/:id/summary', (req, res) => {
       summaryItems: position.summary_items,
       isCurrent: _tl.isCurrent,
       isLatest: _tl.isLatest,
-      escapeHtml: escapeHtml,
+      escapeHtml: escapeHtml, BASE: basePath,
       formatDate: formatDate,
       formatType: formatType
     });
@@ -744,7 +754,7 @@ application.get('/api/position/:id/summary', (req, res) => {
 // ============================================================
 
 // GET /analytics — All analytics data in one endpoint
-application.get('/analytics', (req, res) => {
+application.get(basePath + '/analytics', (req, res) => {
   if (!resume_data.positions || resume_data.positions.length === 0) {
     res.json({});
     return;
@@ -763,7 +773,7 @@ application.get('/analytics', (req, res) => {
 });
 
 // GET /analytics/distribution — Full analytics dashboard (HTML or JSON)
-application.get('/analytics/distribution', (req, res) => {
+application.get(basePath + '/analytics/distribution', (req, res) => {
   var et = analytics.employmentTypeDistribution(resume_data);
   var sa = analytics.staffingAnalysis(resume_data, staffingMapById);
   var ct = analytics.companyTenure(resume_data, companyMapById);
@@ -779,7 +789,8 @@ application.get('/analytics/distribution', (req, res) => {
         company_tenure: ct,
         skill_frequency: sf,
         career_phases: ph,
-        skills_over_time: sot
+        skills_over_time: sot,
+        BASE: basePath
       }, { views: [path.join(__dirname, 'views')] }),
       contact_info: resume_data.contact_info,
       escapeHtml: escapeHtml
