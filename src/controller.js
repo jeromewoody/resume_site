@@ -165,7 +165,70 @@ function buildLookupMaps() {
   } catch (error) {
     console.error('Error building resume data:', error);
   }
+  // Boot-time DTD validation — powers the footer badge (xmllint optional).
+  application.locals.xmlValid = validateResumeXml();
+  application.locals.stats = computeResumeStats();
 })();
+
+// Boot-time check against resume.dtd; null when xmllint isn't installed.
+function validateResumeXml() {
+  var execFileSync = require('child_process').execFileSync;
+  var xmlFile = require('path').join(__dirname, 'data', 'jerome_woody_resume.xml');
+  try {
+    execFileSync('xmllint', ['--noout', '--valid', xmlFile], { stdio: 'pipe' });
+    return true;
+  } catch (e) {
+    if (e && e.code === 'ENOENT') return null;
+    return false;
+  }
+}
+
+// Headline numbers for the hero stat strip, derived from the data (never hardcoded).
+function computeResumeStats() {
+  var positions = (resume_data && resume_data.positions) || [];
+  if (positions.length === 0) return null;
+  var now = new Date();
+  var currentYear = now.getFullYear();
+  var minStartY = null;
+  var maxEndY = null;
+  var usedSkills = new Set();
+  positions.forEach(function(p) {
+    var s = p.date_started && p.date_started.$;
+    var e = p.date_ended && p.date_ended.$;
+    if (s) {
+      var sy = parseInt(s.year, 10);
+      if (minStartY === null || sy < minStartY) minStartY = sy;
+    }
+    var ey = e ? parseInt(e.year, 10) : currentYear;
+    if (maxEndY === null || ey > maxEndY) maxEndY = ey;
+    String((p.$ && p.$.skills_fk) || '').split(/\s+/).filter(Boolean).forEach(function(id) { usedSkills.add(id); });
+  });
+  return {
+    years: Math.max(1, maxEndY - minStartY),
+    positions: positions.length,
+    skills: usedSkills.size
+  };
+}
+
+// Timeline state for a single row rendered standalone (HTMX fragments);
+// mirrors what position_list computes for the full list.
+function positionTimelineState(position) {
+  var now = new Date();
+  var nowYm = now.getFullYear() * 100 + (now.getMonth() + 1);
+  function ym(d) {
+    return (d && d.$) ? parseInt(d.$.year, 10) * 100 + parseInt(d.$.month, 10) : null;
+  }
+  var endYm = ym(position.date_ended);
+  var isCurrent = endYm === null || endYm >= nowYm;
+  var latestId = null;
+  var maxEnd = null;
+  (resume_data && resume_data.positions || []).forEach(function(p) {
+    var ey = ym(p.date_ended);
+    if (ey === null) ey = nowYm;
+    if (maxEnd === null || ey > maxEnd) { maxEnd = ey; latestId = p.$.position_id; }
+  });
+  return { isCurrent: isCurrent, isLatest: position.$.position_id === latestId };
+}
 
 // Listen on HOST:PORT (both env-configurable; defaults preserve prior behavior)
 const host = process.env.HOST || '0.0.0.0';
@@ -367,12 +430,15 @@ application.get('/dates/:start/:end', (req, res) => {
   var [endYear, endMonth] = req.params.end.split('-').map(Number);
 
   var isDateInRange = (position) => {
-    var posStartYear = parseInt(position.date_started[0].$.year);
-    var posStartMonth = parseInt(position.date_started[0].$.month);
+    // model.build() flattens dates to single { $: {year, month} } objects (see AGENTS.md)
+    var ds = position.date_started;
+    if (!ds || !ds.$) return false;
+    var posStartYear = parseInt(ds.$.year);
+    var posStartMonth = parseInt(ds.$.month);
     var posEndYear, posEndMonth;
-    if (position.date_ended && position.date_ended.length > 0) {
-      posEndYear = parseInt(position.date_ended[0].$.year);
-      posEndMonth = parseInt(position.date_ended[0].$.month);
+    if (position.date_ended && position.date_ended.$) {
+      posEndYear = parseInt(position.date_ended.$.year);
+      posEndMonth = parseInt(position.date_ended.$.month);
     } else {
       var currentDate = new Date();
       posEndYear = currentDate.getFullYear();
@@ -570,6 +636,7 @@ application.get('/api/position/:id/card', (req, res) => {
   var staffingName = getStaffingName(staffingFk);
 
   if (wantsHtml(req)) {
+    var _tl = positionTimelineState(position);
     res.render('position_card_detail', {
       posId: posId,
       posTitle: posTitle,
@@ -580,6 +647,8 @@ application.get('/api/position/:id/card', (req, res) => {
       positionType: posType,
       skills: skills,
       summaryItems: position.summary_items,
+      isCurrent: _tl.isCurrent,
+      isLatest: _tl.isLatest,
       escapeHtml: escapeHtml,
       formatDate: formatDate,
       formatType: formatType
@@ -637,6 +706,7 @@ application.get('/api/position/:id/summary', (req, res) => {
   var staffingName = getStaffingName(staffingFk);
 
   if (wantsHtml(req)) {
+    var _tl = positionTimelineState(position);
     res.render('position_card', {
       posId: posId,
       posTitle: posTitle,
@@ -647,6 +717,8 @@ application.get('/api/position/:id/summary', (req, res) => {
       positionType: posType,
       skills: skills,
       summaryItems: position.summary_items,
+      isCurrent: _tl.isCurrent,
+      isLatest: _tl.isLatest,
       escapeHtml: escapeHtml,
       formatDate: formatDate,
       formatType: formatType
@@ -690,51 +762,14 @@ application.get('/analytics', (req, res) => {
   });
 });
 
-// GET /analytics/skills — Skill frequency chart (HTML or JSON)
-application.get('/analytics/skills', (req, res) => {
-  var skill_freq = analytics.skillFrequency(resume_data, skillMapById);
-  var phases = analytics.careerPhases(resume_data, skillMapById);
-   if (wantsHtml(req)) {
-    res.render('layout', {
-      title: 'Skills Analytics',
-      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'analytics_skills.ejs'), 'utf-8'), {
-        skill_frequency: skill_freq,
-        career_phases: phases
-      }, { views: [path.join(__dirname, 'views')] }),
-      contact_info: resume_data.contact_info,
-      escapeHtml: escapeHtml
-    });
-  } else {
-    res.json({ skill_frequency: skill_freq, career_phases: phases });
-  }
-});
-
-// GET /analytics/timeline — Career timeline chart (HTML or JSON)
-application.get('/analytics/timeline', (req, res) => {
-  var ct = analytics.careerTimeline(resume_data, companyMapById);
-  var sot = analytics.skillsOverTime(resume_data, skillMapById);
-   if (wantsHtml(req)) {
-    res.render('layout', {
-      title: 'Career Timeline',
-      body: ejs.render(fs.readFileSync(path.join(__dirname, 'views', 'analytics_timeline.ejs'), 'utf-8'), {
-        career_timeline: ct,
-        skills_over_time: sot
-      }, { views: [path.join(__dirname, 'views')] }),
-      contact_info: resume_data.contact_info,
-      escapeHtml: escapeHtml
-    });
-  } else {
-    res.json({ career_timeline: ct, skills_over_time: sot });
-  }
-});
-
-// GET /analytics/distribution — Employment & staffing dashboard (HTML or JSON)
+// GET /analytics/distribution — Full analytics dashboard (HTML or JSON)
 application.get('/analytics/distribution', (req, res) => {
   var et = analytics.employmentTypeDistribution(resume_data);
   var sa = analytics.staffingAnalysis(resume_data, staffingMapById);
   var ct = analytics.companyTenure(resume_data, companyMapById);
   var sf = analytics.skillFrequency(resume_data, skillMapById);
   var ph = analytics.careerPhases(resume_data, skillMapById);
+  var sot = analytics.skillsOverTime(resume_data, skillMapById);
    if (wantsHtml(req)) {
     res.render('layout', {
       title: 'Analytics Dashboard',
@@ -743,7 +778,8 @@ application.get('/analytics/distribution', (req, res) => {
         staffing: sa,
         company_tenure: ct,
         skill_frequency: sf,
-        career_phases: ph
+        career_phases: ph,
+        skills_over_time: sot
       }, { views: [path.join(__dirname, 'views')] }),
       contact_info: resume_data.contact_info,
       escapeHtml: escapeHtml
@@ -754,7 +790,8 @@ application.get('/analytics/distribution', (req, res) => {
       staffing: sa,
       company_tenure: ct,
       skill_frequency: sf,
-      career_phases: ph
+      career_phases: ph,
+      skills_over_time: sot
     });
   }
 });

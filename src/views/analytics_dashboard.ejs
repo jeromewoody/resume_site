@@ -11,22 +11,32 @@
     <div id="staffing-chart"></div>
   </section>
 
-  <!-- Company Tenure -->
-  <section class="analytics-section">
-    <h2 class="section-title">Company Tenure (Years)</h2>
+  <!-- Company Tenure (treemap: area = length of tenure) -->
+  <section class="analytics-section analytics-section-wide">
+    <h2 class="section-title">Company Tenure</h2>
+    <p class="analytics-subtitle">Tile area = time spent per employer — hover for exact figures</p>
     <div id="company-tenure-chart"></div>
   </section>
 
-  <!-- Top Skills -->
+  <!-- Skill Frequency (full) -->
   <section class="analytics-section analytics-section-wide">
-    <h2 class="section-title">Most Used Skills</h2>
-    <div id="top-skills-chart"></div>
+    <h2 class="section-title">Skill Frequency</h2>
+    <p class="analytics-subtitle">Appearances across all positions — click any skill to see where it was used</p>
+    <div id="skill-frequency-chart"></div>
   </section>
 
-  <!-- Career Phases Summary -->
+  <!-- Career Phases (full) -->
   <section class="analytics-section analytics-section-wide">
-    <h2 class="section-title">Career Phases Overview</h2>
-    <div id="phases-summary-chart"></div>
+    <h2 class="section-title">Career Phases</h2>
+    <p class="analytics-subtitle">Top skills per era (positions grouped by start year) — click any skill or era count to explore</p>
+    <div id="career-phases-chart"></div>
+  </section>
+
+  <!-- Skills Over Time heatmap -->
+  <section class="analytics-section analytics-section-wide">
+    <h2 class="section-title">Skills Over Time</h2>
+    <p class="analytics-subtitle">Skill usage by year</p>
+    <div id="skills-over-time-chart"></div>
   </section>
 </div>
 
@@ -196,157 +206,501 @@
 })();
 
 // ============================================================
-// Company Tenure — Horizontal Bar
+// Company Tenure — Squarified Treemap (area = tenure length)
+// Chosen over bars: tenure is share-of-career data with a heavy right
+// skew (4.75yrs down to 1mo across 19 companies). Bars made the long
+// tail 1px stubs; area encoding keeps anchor employers dominant and
+// the tail visible, with tooltips carrying exact figures.
 // ============================================================
 (function() {
-  var data = <%- JSON.stringify(company_tenure) %>.slice(0, 12);
+  var data = <%- JSON.stringify(company_tenure) %>;
   var tokens = window.__themeTokens;
-  var width = 300, height = data.length * 26 + 40;
+  var container = document.getElementById('company-tenure-chart');
+  var margin = { top: 6, right: 6, bottom: 6, left: 6 };
+  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
+  var height = 360;
+
+  var totalMonths = d3.sum(data, function(d) { return d.total_months; }) || 1;
+  var maxMonths = d3.max(data, function(d) { return d.total_months; }) || 1;
+
+  var root = d3.hierarchy({ children: data }).sum(function(d) { return d.total_months; });
+  d3.treemap().size([width, height]).paddingInner(3).round(true)(root);
+
+  var color = d3.scaleOrdinal()
+    .domain(data.map(function(d) { return d.company; }))
+    .range(tokens.chart);
 
   var svg = d3.select('#company-tenure-chart')
     .append('svg')
-    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
     .attr('width', '100%')
-    .attr('height', '100%');
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  var y = d3.scaleBand()
-    .domain(data.map(function(d) { return d.company; }))
-    .range([10, height - 10])
-    .padding(0.2);
+  var tooltip = d3.select('#company-tenure-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
 
-  var x = d3.scaleLinear()
-    .domain([0, d3.max(data, function(d) { return d.total_years; }) * 1.2])
-    .range([0, width - 50]);
+  function shortName(name) {
+    var s = name.replace(/,?\s*Inc\.?$/i, '').replace(/,?\s*LLC$/i, '')
+                .replace(/\s*Company$/i, '').replace(/,.*$/, '').trim();
+    return s.length > 24 ? s.slice(0, 22) + '…' : s;
+  }
 
-  var color = d3.scaleOrdinal().range(tokens.chart);
+  var cell = svg.selectAll('g.tenure-cell').data(root.leaves()).enter().append('g')
+    .attr('class', 'tenure-cell')
+    .attr('transform', function(d) { return 'translate(' + d.x0 + ',' + d.y0 + ')'; });
 
-  svg.selectAll('.tenure-bar').data(data).enter().append('rect')
-    .attr('y', function(d) { return y(d.company); })
-    .attr('height', y.bandwidth())
-    .attr('x', 0)
-    .attr('width', function(d) { return x(d.total_years); })
-    .attr('rx', 3)
-    .attr('fill', function(d) { return color(d.company); })
-    .style('opacity', tokens.nightOpacity);
+  // Tile opacity scales with tenure but is capped so no block goes fully
+  // saturated — keeps labels readable on the longest-tenure tiles (Discogs).
+  function tileOpacity(d) { return 0.35 + 0.5 * (d.data.total_months / maxMonths); }
 
-  svg.selectAll('.tenure-label').data(data).enter().append('text')
-    .attr('x', function(d) { return x(d.total_years) + 4; })
-    .attr('y', function(d) { return y(d.company) + y.bandwidth() / 2 + 4; })
-    .style('font-size', '0.7rem')
-    .style('fill', tokens.text2)
-    .text(function(d) { return d.total_years.toFixed(1) + 'y'; });
+  // Label color picks ink-or-white from the tile's effective luminance
+  // (fill blended over the card surface at the tile's opacity).
+  function labelColor(d) {
+    var f = d3.color(color(d.data.company)), b = d3.color(tokens.surface);
+    if (!f || !b) return tokens.text1;
+    f = f.rgb(); b = b.rgb();
+    var a = tileOpacity(d);
+    var lin = [f.r * a + b.r * (1 - a), f.g * a + b.g * (1 - a), f.b * a + b.b * (1 - a)]
+      .map(function(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return (0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]) > 0.40 ? tokens.text1 : '#ffffff';
+  }
 
-  svg.selectAll('.company-label').data(data).enter().append('text')
-    .attr('x', -4)
-    .attr('y', function(d) { return y(d.company) + y.bandwidth() / 2 + 4; })
-    .attr('text-anchor', 'end')
-    .style('font-size', '0.7rem')
-    .style('fill', tokens.text2)
+  cell.append('rect')
+    .attr('width', function(d) { return Math.max(0, d.x1 - d.x0); })
+    .attr('height', function(d) { return Math.max(0, d.y1 - d.y0); })
+    .attr('rx', 6)
+    .attr('fill', function(d) { return color(d.data.company); })
+    .attr('opacity', tileOpacity)
+    .attr('stroke', tokens.border)
+    .attr('stroke-width', 0.5)
+    .style('cursor', 'pointer')
+    .on('mouseover', function(event, d) {
+      tooltip.style('opacity', 1)
+        .html('<strong>' + d.data.company + '</strong><br>' +
+              d.data.total_years.toFixed(1) + ' yrs (' + d.data.total_months + ' mo)<br>' +
+              d.data.position_count + ' position' + (d.data.position_count !== 1 ? 's' : '') + '<br>' +
+              ((d.data.total_months / totalMonths) * 100).toFixed(1) + '% of career');
+      d3.select(this).attr('stroke', tokens.text1).attr('stroke-width', 2);
+    })
+    .on('mousemove', function(event) {
+      tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 12) + 'px');
+    })
+    .on('mouseout', function() {
+      tooltip.style('opacity', 0);
+      d3.select(this).attr('stroke', tokens.border).attr('stroke-width', 0.5);
+    });
+
+  // Company name — only rendered when the tile is big enough to read
+  cell.append('text')
+    .attr('x', 7).attr('y', 17)
+    .style('font-size', '0.72rem')
+    .style('font-weight', '600')
+    .style('fill', labelColor)
+    .style('pointer-events', 'none')
     .text(function(d) {
-      var short = d.company.replace(/Inc\./g, '').replace(/Company$/, '').replace(/\,.*$/, '').trim();
-      return short.length > 22 ? short.slice(0, 20) + '...' : short;
+      var w = d.x1 - d.x0, h = d.y1 - d.y0;
+      if (w < 72 || h < 34) return '';
+      var name = shortName(d.data.company);
+      var maxChars = Math.floor((w - 14) / 7);
+      return name.length > maxChars ? name.slice(0, Math.max(3, maxChars - 1)) + '…' : name;
+    });
+
+  // Tenure line — second line only when there is vertical room
+  cell.append('text')
+    .attr('x', 7).attr('y', 33)
+    .style('font-size', '0.66rem')
+    .style('fill', labelColor)
+    .style('opacity', 0.92)
+    .style('pointer-events', 'none')
+    .text(function(d) {
+      var w = d.x1 - d.x0, h = d.y1 - d.y0;
+      if (w < 72 || h < 52) return '';
+      return d.data.total_years.toFixed(1) + ' yrs';
     });
 })();
 
 // ============================================================
-// Top Skills — Compact Horizontal Bar (top 15)
+// Skill Frequency — Ranked Bars + Once-Off Chip Strip
 // ============================================================
 (function() {
-  var data = <%- JSON.stringify(skill_frequency) %>.slice(0, 15);
+  var data = <%- JSON.stringify(skill_frequency) %>;
   var tokens = window.__themeTokens;
-  var container = document.getElementById('top-skills-chart');
-  var margin = { top: 10, right: 40, bottom: 20, left: 110 };
-  var barH = 24;
-  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
-  var height = data.length * (barH + 2);
+  var totalPositions = <%- company_tenure.reduce(function(s, c) { return s + c.position_count; }, 0) %>;
+  var container = document.getElementById('skill-frequency-chart');
 
-  var svg = d3.select('#top-skills-chart').append('svg')
+  // Count>=2 get bars; the count==1 tail (half the skills) becomes a
+  // compact chip strip instead of 14 one-pixel stub rows.
+  var barsData = data.filter(function(d) { return d.count >= 2; });
+  var onceOnly = data.filter(function(d) { return d.count === 1; });
+
+  var margin = { top: 20, right: 50, bottom: 30, left: 120 };
+  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
+  var barHeight = 26;
+  var height = barsData.length * barHeight;
+
+  var svg = d3.select('#skill-frequency-chart')
+    .append('svg')
     .attr('viewBox', '0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+    .attr('width', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var maxCount = d3.max(barsData, function(d) { return d.count; });
+  var x = d3.scaleLinear()
+    .domain([0, maxCount + 1])
+    .range([0, width]);
+
+  var y = d3.scaleBand()
+    .domain(barsData.map(function(d) { return d.skill_name; }))
+    .range([0, height])
+    .padding(0.25);
+
+  // Single ink, opacity ramp: one color with a redundant second channel,
+  // instead of a categorical palette cycle that encoded nothing.
+  var ink = tokens.chart[0];
+  function barOpacity(d) { return 0.45 + 0.55 * (d.count / maxCount); }
+
+  // Gridlines at whole-number ticks
+  svg.append('g')
+    .selectAll('line')
+    .data(d3.range(0, x.domain()[1] + 1, 5))
+    .enter().append('line')
+    .attr('x1', function(t) { return x(t); })
+    .attr('x2', function(t) { return x(t); })
+    .attr('y1', 0)
+    .attr('y2', height)
+    .attr('stroke', tokens.border)
+    .attr('stroke-dasharray', '3,3');
+
+  // X axis (whole-number ticks only)
+  svg.append('g')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(d3.axisBottom(x).tickValues(d3.range(0, x.domain()[1] + 1, 5)))
+    .attr('class', 'd3-axis');
+
+  // Y axis (class applied to the group, not the removed domain path)
+  var yAxisG = svg.append('g')
+    .call(d3.axisLeft(y).tickSize(0));
+  yAxisG.select('.domain').remove();
+  yAxisG.selectAll('text')
+    .style('font-size', '0.8rem')
+    .style('fill', tokens.text2);
+
+  // Bars
+  var bars = svg.selectAll('.bar')
+    .data(barsData)
+    .enter()
+    .append('rect')
+    .attr('class', 'd3-bar')
+    .attr('y', function(d) { return y(d.skill_name); })
+    .attr('height', y.bandwidth())
+    .attr('x', 0)
+    .attr('width', 0)
+    .attr('rx', 3)
+    .attr('fill', ink)
+    .style('cursor', 'pointer')
+    .style('opacity', barOpacity);
+
+  // Tooltips — opacity handled via style consistently so hover feedback
+  // isn't masked by the initial inline style (old attr/style mismatch)
+  var tooltip = d3.select('#skill-frequency-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
+
+  bars.on('mouseover', function(event, d) {
+    tooltip
+      .style('opacity', 1)
+      .html('<strong>' + d.skill_name + '</strong><br>' +
+            d.count + ' of ' + totalPositions + ' positions (' +
+            Math.round(d.count / totalPositions * 100) + '%)');
+    d3.select(this).style('opacity', 1);
+  })
+  .on('mousemove', function(event) {
+    tooltip
+      .style('left', (event.pageX + 12) + 'px')
+      .style('top', (event.pageY - 12) + 'px');
+  })
+  .on('mouseout', function(event, d) {
+    tooltip.style('opacity', 0);
+    d3.select(this).style('opacity', barOpacity(d));
+  })
+  .on('click', function(event, d) {
+    window.location.href = '/skill/' + d.skill_id;
+  });
+
+  // Animate bars
+  bars.transition()
+    .duration(600)
+    .attr('width', function(d) { return x(d.count); });
+
+  // Value labels — count out of total positions
+  svg.selectAll('.bar-label')
+    .data(barsData)
+    .enter()
+    .append('text')
+    .attr('class', 'd3-bar-label')
+    .attr('x', function(d) { return x(d.count) + 6; })
+    .attr('y', function(d) { return y(d.skill_name) + y.bandwidth() / 2 + 4; })
+    .text(function(d) { return d.count + '/' + totalPositions; })
+    .style('font-size', '0.72rem')
+    .style('fill', tokens.text2)
+    .style('pointer-events', 'none');
+
+  // Once-off skills: compact clickable chip strip instead of stub bars
+  if (onceOnly.length) {
+    var strip = d3.select('#skill-frequency-chart')
+      .append('div')
+      .style('display', 'flex')
+      .style('flex-wrap', 'wrap')
+      .style('gap', '6px')
+      .style('align-items', 'center')
+      .style('margin-top', '10px');
+    strip.append('span')
+      .style('font-size', '0.72rem')
+      .style('color', tokens.text3)
+      .text(onceOnly.length + ' once-used skills:');
+    strip.selectAll('span.sf-chip')
+      .data(onceOnly)
+      .enter()
+      .append('span')
+      .attr('class', 'sf-chip')
+      .text(function(d) { return d.skill_name; })
+      .style('font-size', '0.72rem')
+      .style('padding', '2px 8px')
+      .style('border', '1px solid ' + tokens.border)
+      .style('border-radius', '999px')
+      .style('color', tokens.text2)
+      .style('background', tokens.surface2)
+      .style('cursor', 'pointer')
+      .on('click', function(event, d) { window.location.href = '/skill/' + d.skill_id; });
+  }
+})();
+
+// ============================================================
+// Career Phases — Ranked Skill Rows per Era
+// Positions are assigned to an era by START year (see analytics.js).
+// ONE global count scale keeps bar lengths comparable ACROSS columns
+// (per-column normalization made a 2/5 bar and a 10/10 bar look equal),
+// single ink + opacity ramp, counts shown at bar end, and rows are
+// clickable through to /skill/:id / /dates/:start/:end.
+// ============================================================
+(function() {
+  var phases = <%- JSON.stringify(career_phases) %>;
+  var tokens = window.__themeTokens;
+
+  var nameGutter = 82;
+  var phaseWidth = 230;
+  var phaseGap = 28;
+  var totalWidth = phases.length * (phaseWidth + phaseGap) - phaseGap;
+  var barH = 16;
+  var rowGap = 5;
+  var maxSkills = d3.max(phases, function(p) { return p.dominant_skills.length; });
+  var height = maxSkills * (barH + rowGap) + 44;
+  var margin = { top: 32, right: 10, bottom: 10, left: 10 };
+
+  var svg = d3.select('#career-phases-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + (totalWidth + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))
+    .attr('width', '100%')
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var globalMax = d3.max(phases, function(p) {
+    return d3.max(p.dominant_skills, function(d) { return d.count; });
+  });
+  var x = d3.scaleLinear().domain([0, globalMax]).range([0, phaseWidth - nameGutter - 24]);
+  var ink = tokens.chart[0];
+  function barOpacity(skill) { return 0.45 + 0.55 * (skill.count / globalMax); }
+
+  var tooltip = d3.select('#career-phases-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
+
+  phases.forEach(function(phase, i) {
+    var g = svg.append('g')
+      .attr('transform', 'translate(' + (i * (phaseWidth + phaseGap)) + ',0)');
+
+    // Era header
+    g.append('text')
+      .attr('x', 0)
+      .attr('y', -12)
+      .style('font-size', '0.85rem')
+      .style('font-weight', '600')
+      .style('fill', tokens.text1)
+      .text(phase.phase_name);
+
+    phase.dominant_skills.forEach(function(skill, j) {
+      var y = j * (barH + rowGap);
+      var row = g.append('g').style('cursor', 'pointer');
+
+      // Skill name in a fixed gutter (no more labels overflowing columns)
+      row.append('text')
+        .attr('x', 0)
+        .attr('y', y + barH / 2 + 4)
+        .style('font-size', '0.66rem')
+        .style('fill', tokens.text2)
+        .text(skill.skill_name.length > 13 ? skill.skill_name.slice(0, 12) + '…' : skill.skill_name);
+
+      row.append('rect')
+        .attr('x', nameGutter)
+        .attr('y', y)
+        .attr('width', Math.max(2, x(skill.count)))
+        .attr('height', barH)
+        .attr('rx', 3)
+        .attr('fill', ink)
+        .style('opacity', barOpacity(skill));
+
+      // Actual count at the bar end — the old chart never showed numbers
+      row.append('text')
+        .attr('x', nameGutter + x(skill.count) + 5)
+        .attr('y', y + barH / 2 + 4)
+        .style('font-size', '0.64rem')
+        .style('fill', tokens.text3)
+        .text(skill.count);
+
+      row
+        .on('click', function() { window.location.href = '/skill/' + skill.skill_id; })
+        .on('mouseover', function() {
+          tooltip.style('opacity', 1)
+            .html('<strong>' + skill.skill_name + '</strong> · ' + phase.phase_name + '<br>' +
+                  'used in ' + skill.count + ' of ' + phase.positions.length + ' positions this era');
+          row.select('rect').style('opacity', 1);
+        })
+        .on('mousemove', function(event) {
+          tooltip.style('left', (event.pageX + 12) + 'px').style('top', (event.pageY - 12) + 'px');
+        })
+        .on('mouseout', function() {
+          tooltip.style('opacity', 0);
+          row.select('rect').style('opacity', barOpacity(skill));
+        });
+    });
+
+    // Era footer: position count links to the /dates range view
+    g.append('text')
+      .attr('x', 0)
+      .attr('y', maxSkills * (barH + rowGap) + 20)
+      .style('font-size', '0.72rem')
+      .style('fill', tokens.text3)
+      .style('cursor', 'pointer')
+      .text(phase.positions.length + ' position' + (phase.positions.length !== 1 ? 's' : '') + ' ▸')
+      .on('click', function() {
+        window.location.href = '/dates/' + phase.start_year + '-1/' + Math.max(phase.end_year, phase.start_year) + '-12';
+      })
+      .on('mouseover', function() { d3.select(this).style('fill', tokens.text1); })
+      .on('mouseout', function() { d3.select(this).style('fill', tokens.text3); });
+  });
+})();
+
+// ============================================================
+// Skills Over Time — Heatmap
+// ============================================================
+(function() {
+  var data = <%- JSON.stringify(skills_over_time) %>;
+  var tokens = window.__themeTokens;
+  var container = document.getElementById('skills-over-time-chart');
+
+  var allSkills = {};
+  data.forEach(function(d) {
+    d.skills.forEach(function(s) {
+      if (!allSkills[s.skill_id]) allSkills[s.skill_id] = { id: s.skill_id, name: s.skill_name };
+    });
+  });
+
+  var skillList = Object.values(allSkills);
+  var years = data.map(function(d) { return d.year; });
+
+  var margin = { top: 20, right: 20, bottom: 40, left: 120 };
+  var cellSize = 20;
+  // Column pitch must exceed the ~34px width of a 0.75rem 4-digit year label,
+  // otherwise the bottom year labels collide. Decoupled from cellSize so the
+  // heat cells stay compact while the year grid gets room to breathe.
+  var cellPitchX = 46;
+  var cellPitchY = cellSize + 2;
+  var width = Math.min(container.parentElement.clientWidth - 40, 900) - margin.left - margin.right;
+  var height = skillList.length * cellPitchY;
+  var gridW = years.length * cellPitchX;
+  var svgW = Math.max(width, gridW);   // widen the viz so the grid never clips
+
+  var svg = d3.select('#skills-over-time-chart')
+    .append('svg')
+    .attr('viewBox', '0 0 ' + (svgW + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom + 20))
     .attr('width', '100%')
     .attr('height', '100%')
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-  var x = d3.scaleLinear().domain([0, d3.max(data, function(d) { return d.count; })]).range([0, width]);
-  var y = d3.scaleBand().domain(data.map(function(d) { return d.skill_name; })).range([0, height]).padding(0.15);
-  var color = d3.scaleOrdinal().range(tokens.chart);
+  var x = d3.scaleLinear()
+    .domain([0, years.length - 1])
+    .range([0, gridW]);
 
-  svg.selectAll('rect').data(data).enter().append('rect')
-    .attr('y', function(d) { return y(d.skill_name); })
-    .attr('height', y.bandwidth())
-    .attr('x', 0)
-    .attr('width', function(d) { return x(d.count); })
-    .attr('rx', 3)
-    .attr('fill', function(d) { return color(d.skill_name); })
-    .attr('opacity', 0.8 * parseFloat(tokens.nightOpacity));
+  var color = d3.scaleOrdinal()
+    .domain(skillList.map(function(d) { return d.id; }))
+    .range(tokens.chart);
 
-  svg.selectAll('.skill-label').data(data).enter().append('text')
-    .attr('x', function(d) { return x(d.count) + 6; })
-    .attr('y', function(d) { return y(d.skill_name) + y.bandwidth() / 2 + 4; })
-    .style('font-size', '0.75rem')
-    .style('fill', tokens.text2)
-    .text(function(d) { return d.skill_name + ' (' + d.count + ')'; });
-})();
+  var tooltip = d3.select('#skills-over-time-chart')
+    .append('div')
+    .attr('class', 'd3-tooltip')
+    .style('opacity', 0);
 
-// ============================================================
-// Career Phases — Timeline Summary
-// ============================================================
-(function() {
-  var phases = <%- JSON.stringify(career_phases) %>;
-  var tokens = window.__themeTokens;
-  var container = document.getElementById('phases-summary-chart');
-  var width = Math.min(container.parentElement.clientWidth - 40, 900);
-  var height = 200;
+  data.forEach(function(yearData, yi) {
+    var skillMap = {};
+    yearData.skills.forEach(function(s) { skillMap[s.skill_id] = s.count; });
 
-  var svg = d3.select('#phases-summary-chart').append('svg')
-    .attr('viewBox', '0 0 ' + width + ' ' + height)
-    .attr('width', '100%')
-    .attr('height', '100%');
-
-  var phaseW = width / phases.length;
-
-  var color = d3.scaleOrdinal().range(tokens.chart);
-
-  phases.forEach(function(phase, i) {
-    var g = svg.append('g')
-      .attr('transform', 'translate(' + (i * phaseW + 10) + ',0)');
-
-    // Phase background
-    g.append('rect')
-      .attr('width', phaseW - 20)
-      .attr('height', height - 20)
-      .attr('rx', 6)
-      .attr('fill', tokens.surface2)
-      .attr('stroke', tokens.border);
-
-    // Label
-    g.append('text')
-      .attr('x', (phaseW - 20) / 2)
-      .attr('y', 18)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '0.85rem')
-      .style('font-weight', '600')
-      .style('fill', tokens.text1)
-      .text(phase.phase_name + ' (' + phase.positions.length + ')');
-
-    // Top skills as small chips
-    phase.dominant_skills.slice(0, 5).forEach(function(skill, j) {
-      g.append('rect')
-        .attr('x', 8)
-        .attr('y', 32 + j * 22)
-        .attr('width', (phaseW - 20) - 16)
-        .attr('height', 18)
+    skillList.forEach(function(skill, si) {
+      var count = skillMap[skill.id] || 0;
+      var cell = svg.append('rect')
+        .attr('x', yi * cellPitchX + (cellPitchX - cellSize) / 2)
+        .attr('y', si * cellPitchY)
+        .attr('width', cellSize)
+        .attr('height', cellSize)
         .attr('rx', 3)
-        .attr('fill', color(skill.skill_name))
-        .attr('opacity', 0.8 * parseFloat(tokens.nightOpacity));
+        .attr('fill', count > 0 ? color(skill.id) : tokens.border)
+        .attr('opacity', count > 0 ? Math.min(1, 0.3 + count * 0.4) * parseFloat(tokens.nightOpacity) : 0.2)
+        .style('cursor', 'pointer');
 
-      g.append('text')
-        .attr('x', 12)
-        .attr('y', 32 + j * 22 + 13)
-        .style('font-size', '0.7rem')
-        .style('fill', tokens.surface === 'rgba(17, 23, 43, .72)' || tokens.surface.startsWith('rgba') ? '#fff' : '#fff')
-        .text(skill.skill_name + ' x' + skill.count);
+      cell.on('mouseover', function() {
+        tooltip
+          .style('opacity', 1)
+          .html(skill.name + '<br>' + yearData.year + ': ' + count + ' position' + (count !== 1 ? 's' : ''));
+        d3.select(this).attr('stroke', tokens.text1).attr('stroke-width', 2);
+      })
+      .on('mousemove', function(event) {
+        tooltip
+          .style('left', (event.pageX + 12) + 'px')
+          .style('top', (event.pageY - 12) + 'px');
+      })
+      .on('mouseout', function() {
+        tooltip.style('opacity', 0);
+        d3.select(this).attr('stroke', null).attr('stroke-width', null);
+      });
     });
+  });
+
+  // Year labels
+  data.forEach(function(d, i) {
+    svg.append('text')
+      .attr('x', i * cellPitchX + cellPitchX / 2)
+      .attr('y', height + 16)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '0.75rem')
+      .style('fill', tokens.text2)
+      .text(d.year);
+  });
+
+  // Skill labels
+  skillList.forEach(function(s, i) {
+    svg.append('text')
+      .attr('x', -8)
+      .attr('y', i * (cellSize + 2) + cellSize / 2 + 4)
+      .attr('text-anchor', 'end')
+      .style('font-size', '0.7rem')
+      .style('fill', tokens.text2)
+      .text(s.name);
   });
 })();
 </script>

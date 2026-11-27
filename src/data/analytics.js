@@ -237,9 +237,19 @@ function companyTenure(resume_data, companyMapById) {
 
   return Object.values(companies).map(function(c) {
     var sorted = c.positions.sort(function(a, b) { return a.start - b.start; });
+    var now = new Date();
+    var nowYm = now.getFullYear() * 100 + (now.getMonth() + 1);
+    function monthsBetween(start, end) {
+      // start/end are YYYYMM ints (year*100+month) — NOT subtractable as months
+      var sy = Math.floor(start / 100), sm = start % 100;
+      var ey = Math.floor(end / 100),   em = end % 100;
+      return Math.max(0, (ey - sy) * 12 + (em - sm));
+    }
     var totalMonths = 0;
     sorted.forEach(function(p) {
-      if (p.end) totalMonths += (p.end - p.start);
+      if (!p.start) return;
+      var end = p.end || nowYm;  // open-ended position = still there (current month)
+      totalMonths += monthsBetween(p.start, end);
     });
 
     return {
@@ -314,11 +324,27 @@ function careerPhases(resume_data, skillMapById) {
   var minYear = Math.min.apply(null, years);
   var maxYear = Math.max.apply(null, years);
 
+  // Last activity year (latest end year; open-ended = current year).
+  // Positions are bucketed by START year, so without this the trailing
+  // phase would be labeled by the last start year only (a 2022 role
+  // running to 2026 would make the career look like it ended in 2022).
+  var maxEndYear = maxYear;
+  var currentYear = new Date().getFullYear();
+  resume_data.positions.forEach(function(pos) {
+    var end = pos.date_ended;
+    if (Array.isArray(end)) end = end[0];
+    var ey;
+    if (end) ey = end.$ ? parseInt(end.$.year) : parseInt(end.year);
+    else if (pos.date_started) ey = currentYear;
+    if (ey && ey > maxEndYear) maxEndYear = ey;
+  });
+
   // Create phases: ~5 year intervals
   var phases = [];
   for (var y = minYear; y <= maxYear; y += 5) {
     var phaseStart = y;
-    var phaseEnd = Math.min(y + 4, maxYear);
+    var isLastPhase = (y + 5) > maxYear;
+    var phaseEnd = isLastPhase ? maxEndYear : Math.min(y + 4, maxYear);
     var label = phaseStart + '-' + String(phaseEnd).slice(2);
 
     var skillCounts = {};

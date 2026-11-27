@@ -63,7 +63,7 @@ Analytics (JSON or HTML via layout):
 | Route | Description |
 |-------|-------------|
 | `GET /analytics` | All metrics in one JSON object (skill_frequency, skill_cooccurrence≥2, skills_over_time 5-yr buckets, employment_types w/%, career_timeline, company_Tenure, staffing direct vs by_firm, career_phases). |
-| `/analytics/skills`, `/analytics/timeline`, /analytics/distribution` | Individual metric pairs rendered as HTML pages (D3-via-view) or JSON. Backend is read-only; no analytics DB writes. No frontend framework bundled — D3 is referenced from a CDN in the views; offline runs cannot render charts.|
+| `/analytics/distribution` | The full analytics dashboard (HTML or JSON): Employment Types, Staffing vs Direct Hire, Company Tenure, Skill Frequency, Career Phases, and the Skills-Over-Time heatmap. The separate `/analytics/skills` and `/analytics/timeline` pages were removed (redundant with the homepage timeline; their charts live here now). Backend is read-only; no analytics DB writes. No frontend framework bundled — D3 is referenced from a CDN in the views; offline runs cannot render charts.|
 
 ## Gotchas for agents
 
