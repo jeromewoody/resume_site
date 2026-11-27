@@ -3,7 +3,7 @@
 <resume>
 	<name>Jerome Woody</name>
 	<phone_number>206.651.4031</phone_number>
-	<email_address>woody.jerome@gmail.com</email_address>
+	<email_address>jerome.woody@gmail.com</email_address>
 	<skill skill_id="php">PHP</skill>
 	<skill skill_id="codeigniter">CodeIgniter</skill>
 	<skill skill_id="pear">PEAR</skill>
@@ -51,28 +51,28 @@
 		<specialization>Advanced writing and communication skills_fk.</specialization>
 		<specialization>Ability to do formal research.</specialization>
 		<specialization>Ability to supply creative solutions to complex problems.</specialization>
-		<specialization>Well versed in Photoshop and other media editing tools.</specialization>
-	</specialization_group>
-	<specialization_group label="E-Commerce Systems">
-		<specialization>Familiar with developing solutions using Magento E-commerse platform (v 1.3 &amp; v 1.10).</specialization>
 	</specialization_group>
 	<specialization_group label="Content Management Systems">
-		<specialization>Familiar with developing with a wide range of CMS solutions including ExpressionEngine, AnswerHub, Zope, Wordpress, and Bricolage.</specialization>
+		<specialization>Familiar with developing with a wide range of CMS solutions including Saleforce Commerce Cloud, ExpressionEngine, AnswerHub, Zope, Wordpress, and Bricolage.</specialization>
 		<specialization>Created custom plugins and extenstion for ExpressionEngine, Wordpress.</specialization>
 		<specialization>Experience in creating a CMS sytem from scratch and CMS Evaluations.</specialization>
 	</specialization_group>
-	<specialization_group label="Android Software / Mobile Web Development">
-		<specialization>Experience in developing programs and software for the Android mobile platform.</specialization>
-		<specialization>Created Java classes using Android SDK for media playing, SOAP communication and database connectivity.</specialization>
+	<specialization_group label="Mobile Web Development">
+		<specialization>Experienced in developing programs and software for the Android and iOS mobile platforms.</specialization>
+                <specialization>Experienced in devloping sophisticated apps using React Native 0.87, along with the recent versions of Expo SDK.</specialization>
+		<specialization>Managed and proformed end-to-end DevOps pipelines from taking app release from branch -> Apple and Android appstores for beta testers -> To the general public via public release.</specialization>
+                <specialization>Experienced with the analyzing bug and crash reports, reporting and triaging of response tickets, using Luciq, Google Analytics and Firebase platforms</specialization>
 		<specialization>Experience in creating interactive and adaptive front-end interfaces for webkit based mobile web browsers.</specialization> 
-		<specialization>Experience in remote debugging of mobile websites.</specialization>
+		<specialization>Exprience in agentic QA workflows using Maestro.</specialization>
 	</specialization_group>
-	<specialization_group label="Social Networks / Cloud Development">
-		<specialization>Experience with working with the Microsoft Azure C# API.</specialization>
-		<specialization>Experience with working with Microsoft Azuare blobs, tables, and intances.</specialization>
-		<specialization>Experience with developing SOAP clients in PHP (NuSOAP).</specialization>
-		<specialization>Experience in use of APIs for Amazon's S3 online storage system.</specialization>
-	</specialization_group>
+        <specialization_group label="Agentic Engineering">
+                <specialization>Experienced in creating sophisticated, multiple agent pipelines from scratch using cloud foundation models (Claude, Gemini) and edge models (Gemma family, Qwen family, IBM Granite family).</specialization>
+                <specialization>Experienced in planing and executing large code generating tasks with token efficiency as a core concern.</specialization>
+                <specialization>Experienced in LLM Ops fundumentals like RAG development an model finetuning.</specialization>
+                <specialization>Experienced in setting up serving models using VLLM and SGLang inference engines for mult-user requests.</specialization>
+                <specialization>Has led training and info sessions on a wide range of AI topics such as prompt engineering, local model evalation techniques and harnes agnostic mult-agent orchestration.</specialization>
+                <specialization>Has giving a lighning talk at a well aggented Developer conferences on a novel prompt engineering technique.</specialization>
+        </specialization_group>
 	<specialization_group label="Systems Analysis">
 		<specialization>Familiarity with "waterfall" methodology of systems design.</specialization>
 		<specialization>Experience with CASE modeling (ERD, DFD, UML).</specialization>
@@ -191,6 +191,21 @@
 		<staffing_name>Aditi Staffing</staffing_name>
 		<staffing_location>Bellevue, Wa</staffing_location>
 	</staffing_company>
+	<position position_id="dis2022" company_fk="discogs" skills_fk="html react css javascript python nodejs xml">
+                <position_title position_type="full_time">Sr. Web Developer, UX &amp; Mobile</position_title>
+                <date_started month="1" year="2022" />
+		<date_ended month="10" year="2026" />
+                <position_summary>
+                        <summary_item>Help greately expand company's internal React Component library.</summary_item>
+                        <summary_item>Contributed to UX feature development and issue resolution on Discogs Web Site.</summary_item>
+                        <summary_item>Contributed to UX feature development and issue resolutions for Discogs Mobile App for iOS and Android (React Native)</summary_item>
+			<summary_item>Lead the brownfield engineering effort to add "dark mode" theme system to the Discogs App</summary_item>
+                        <summary_item>Co-lead major refactoring effort to replace Redux storage systems with a Tanstack / Zustland based system.</summary_item>
+                        <summary_item>Provided leadership on Front End delovepment, Accessability and Use of Generative AI</summary_item>
+                        <summary_item>Planned and was major contributor in creating a 'Virutal QA' pipeling that increased code test coverage from 2% to 80%, and include both Unit, Integration and e2e device running tests</summary_item>
+                        <summary_item>Provied peer coaching via a series of structured educational presentations and through a weekly meeting about Front End development which was widely attended across the company</summary_item>
+                </position_summary>
+        </position>
 	<position position_id="lu0820" company_fk="lululemon" skills_fk="html css javascript jquery isml">
 		<position_title position_type="contract">Senior Front End Developer/Lead, International Search, Browse, and SEO</position_title>
 		<date_started month="8" year="2020" />
@@ -203,17 +218,19 @@
 			<summary_item>Built software tools to automate workflow and to augment analysis work.</summary_item>
 		</position_summary>
 	</position>
-	<position position_id="dis2022" company_fk="discogs" skills_fk="html react css javascript python nodejs xml">
-		<position_title position_type="full_time">Sr. Web Developer, UX</position_title>
-		<date_started month="1" year="2022" />
-		<position_summary>
-			<summary_item>Help greately expand company's internal React Component library</summary_item>
-			<summary_item>Contributed to UX feature development and issue resolution on Discogs Web Site.</summary_item>
-			<summary_item>Contributed to UX feature development and issue resolutions for Discogs Mobile App for iOS and Android (React Native)</summary_item>
-			<summary_item>Provided leadership on Front End delovepment, Accessability and Use of Generative AI</summary_item>
-			<summary_item>Provied Peer coaching via a series of structured educational presentations and through a weekly meeting about Front End development which was widely attended across the company</summary_item>
-		</position_summary>
-	</position>
+	<position position_id="amz0520" company_fk="amazon" staffing_fk="creative_circle" skills_fk="typescript react">
+                <position_title position_type="contract">Web Developer III, Amazon Transportation Service</position_title>
+                <date_started month="5" year="2020" />
+                <date_ended month="8" year="2020" />
+                <position_summary>
+                        <summary_item>Lead front-end developer for freight.amazon.com/blog and relay.amazon.com/blog.</summary_item>
+                        <summary_item>Built web application for blogs using React, Meridian, Katal and Lego.</summary_item>
+                        <summary_item>Created a single blog platform that can be used by both websites.</summary_item>
+                        <summary_item>Worked with developers on Amazon Freight and Amazon Relay for Carrier in integrating blog into websites.</summary_item>
+                        <summary_item>Participated in weekly demos with stakeholders.</summary_item>
+                        <summary_item>Created Lego publishing training documents and videos.</summary_item>
+                </position_summary>
+        </position>
 	<position position_id="amz2019" company_fk="amazon" staffing_fk="creative_circle" skills_fk="html jsp css javascript java_servlets nodejs">
 		<position_title position_type="contract">Web Developer Engineer, Sustainability</position_title>
 		<date_started month="7" year="2019" />
@@ -222,19 +239,6 @@
 			<summary_item>Responsible for front-end development of Amazon “Second Chance” portal and “The Climate Pledge” website.</summary_item>
 			<summary_item>Created content widgets that are now embedded in Amazon.com “Your Order’s” page, a highly visible part of Amazon’s user experience.</summary_item>
 			<summary_item>Worked with team designers and software developers to create interactive, responsive web components using JSP, Spring MVC, SCSS, and ReactJS, along with internal Amazon technologies.</summary_item>
-		</position_summary>
-	</position>
-	<position position_id="amz0520" company_fk="amazon" staffing_fk="creative_circle" skills_fk="typescript react">
-		<position_title position_type="contract">Web Developer III, Amazon Transportation Service</position_title>
-		<date_started month="5" year="2020" />
-		<date_ended month="8" year="2020" />
-		<position_summary>
-			<summary_item>Lead front-end developer for freight.amazon.com/blog and relay.amazon.com/blog.</summary_item>
-			<summary_item>Built web application for blogs using React, Meridian, Katal and Lego.</summary_item>
-			<summary_item>Created a single blog platform that can be used by both websites.</summary_item>
-			<summary_item>Worked with developers on Amazon Freight and Amazon Relay for Carrier in integrating blog into websites.</summary_item>
-			<summary_item>Participated in weekly demos with stakeholders.</summary_item>
-			<summary_item>Created Lego publishing training documents and videos.</summary_item>
 		</position_summary>
 	</position>
 	<position position_id="amz0218" company_fk="amazon" staffing_fk="aditi" skills_fk="html css xml xpath xslt javascript ruby python">
