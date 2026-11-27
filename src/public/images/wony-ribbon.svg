@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 34 120 96">
+  <defs>
+    <linearGradient id="waveRibbon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0284c7"/>
+      <stop offset="40%"  stop-color="#38bdf8"/>
+      <stop offset="80%"  stop-color="#2dd4bf"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(18, 18)">
+    <!-- Layer 1: Ambient deep water -->
+    <path d="M 6 65 C 24 25, 42 25, 60 65 C 78 105, 96 105, 114 65" stroke="#0369a1" stroke-width="4" stroke-linecap="round" opacity="0.35"/>
+    <!-- Layer 2: Main primary stream (W Form) -->
+    <path d="M 14 55 C 28 20, 44 20, 58 55 C 72 90, 88 90, 102 55" stroke="url(#waveRibbon)" stroke-width="6" stroke-linecap="round"/>
+    <!-- Layer 3: Surface shimmer -->
+    <path d="M 22 45 C 34 22, 46 22, 58 45 C 70 70, 82 70, 94 45" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+    <!-- Distributed autonomous sensor nodes -->
+    <circle cx="58" cy="55" r="4.5" fill="#ffffff"/>
+    <circle cx="102" cy="55" r="3" fill="#38bdf8"/>
+  </g>
+</svg>
