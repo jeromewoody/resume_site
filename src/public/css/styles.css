@@ -1396,6 +1396,38 @@ a:hover {
   color: var(--text-3);
 }
 
+.footer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* GitHub CTA — mirrors the .theme-toggle pill, with octicon mark-github */
+.github-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.github-cta:hover,
+.github-cta:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.github-cta svg {
+  display: block;
+}
+
 .xml-badge {
   font-size: 0.68rem;
   font-weight: 700;

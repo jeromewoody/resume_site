@@ -142,8 +142,9 @@
    <div class="resume-container">
      <%- include('header', { contact_info: contact_info }) %>
      <%- body %>
-     <footer class="site-footer">
+     <footer class="site-footer" id="footer">
        <span class="footer-copy">© <%= new Date().getFullYear() %> Jerome Woody · Built with Node, EJS &amp; HTMX</span>
+       <span class="footer-actions">
        <% if (typeof xmlValid !== 'undefined' && xmlValid === true) { %>
          <span class="xml-badge xml-badge--ok" title="resume.xml validated against resume.dtd with xmllint at server start">XML · DTD valid</span>
        <% } else if (typeof xmlValid !== 'undefined' && xmlValid === false) { %>
@@ -151,7 +152,14 @@
        <% } else { %>
          <span class="xml-badge xml-badge--na" title="xmllint not installed — validation skipped at server start">XML · not checked</span>
        <% } %>
-     </footer>
+       <a class="github-cta" href="https://github.com/jeromewoody/resume_site"
+          target="_blank" rel="noopener noreferrer"
+          aria-label="View this site's source code on GitHub">
+         <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.27-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.42.55-.52 1.32-.46.21-1.64.56-2.35-.58 0 0-.43-.78-1.24-.84 0 0-1.58-.02-.01.99 0 0 1.06.5 1.8 2.38 0 0 .95 2.99 5.46 1.98 0 .75.01 1.45.01 1.69 0 .21-.15.45-.55.38A8.01 8.01 0 0 1 0 8c0-4.42 3.58-8 8-8z"/></svg>
+         View on GitHub
+       </a>
+       </span>
+       </footer>
      <script>
        // Highlight nav button for the current page
        (function() {
