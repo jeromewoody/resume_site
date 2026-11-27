@@ -1,57 +1,59 @@
-<% var isCurrent = dateEnded === undefined || dateEnded === null || dateEnded === 'Present'; %>
-<article id="card-<%= posId %>" class="position-card<% if (isCurrent) { %> is-current<% } %>">
-  <div class="position-content">
-    <header class="position-header">
-      <h3 class="position-title"><%= escapeHtml(posTitle) %></h3>
-      <div class="position-company">
-        <span class="company-name"><%= escapeHtml(companyName) %></span>
+<%
+  // Collapsed timeline row. isCurrent/isLatest are passed by position_list;
+  // fall back to open-ended data when rendered standalone (API fragments).
+  var _isCurrent = (typeof isCurrent === 'undefined')
+    ? (dateEnded === undefined || dateEnded === null || dateEnded === 'Present')
+    : isCurrent;
+  var _isLatest = (typeof isLatest === 'undefined') ? false : isLatest;
+  var _hasSummary = !!(summaryItems && summaryItems.length > 0);
+%>
+<article id="card-<%= posId %>" class="tl-entry<% if (_isCurrent) { %> is-current<% } else if (_isLatest) { %> is-latest<% } %>">
+  <span class="tl-dot" aria-hidden="true"></span>
+  <div class="tl-row">
+    <header class="tl-head">
+      <h3 class="position-title"><%= posTitle %></h3>
+      <div class="tl-meta">
+        <span class="company-name"><%= companyName %></span>
         <% if (staffingName) { %>
-          <span class="staffing-separator">via</span>
-          <span class="staffing-name"><%= escapeHtml(staffingName) %></span>
+          <span class="staffing-separator">via <%= staffingName %></span>
+        <% } %>
+        <span class="tl-sep" aria-hidden="true">·</span>
+        <time class="date-start"><%= formatDate(dateStarted) %></time>
+        <span class="date-separator">–</span>
+        <time class="date-end"><%= dateEnded ? formatDate(dateEnded) : 'Present' %></time>
+        <span class="type-value <%= positionType %>"><%= formatType(positionType) %></span>
+        <% if (_isCurrent) { %>
+          <span class="tl-flag tl-flag--current">Current</span>
+        <% } else if (_isLatest) { %>
+          <span class="tl-flag tl-flag--latest">Most recent</span>
         <% } %>
       </div>
     </header>
 
-    <div class="employment-details">
-      <div class="duration">
-        <span class="duration-label">Duration: </span>
-        <span class="date-range">
-          <time class="date-start"><%= formatDate(dateStarted) %></time>
-          <span class="date-separator"> – </span>
-          <time class="date-end"><%= dateEnded ? formatDate(dateEnded) : 'Present' %></time>
-        </span>
-      </div>
-      <div class="employment-type">
-        <span class="type-value <%= positionType %>"><%= formatType(positionType) %></span>
-      </div>
-    </div>
-
     <% if (skills && skills.length > 0) { %>
-    <div class="skills-section">
-      <h4 class="skills-title">Technologies &amp; Skills</h4>
-      <div class="skills-list">
-        <% skills.forEach(function(s) { %>
-          <button class="skill-tag"
-                  hx-get="/api/positions/by-skill/<%= s.skill_id %>"
-                  hx-target="#results"
-                  hx-swap="outerHTML"
-                  aria-label="Filter by <%= escapeHtml(s.skill_value) %>">
-            <%= escapeHtml(s.skill_value) %>
-          </button>
-        <% }) %>
-      </div>
+    <div class="skills-list">
+      <% skills.forEach(function(s) { %>
+        <button class="skill-tag"
+                hx-get="/api/positions/by-skill/<%= s.skill_id %>"
+                hx-target="#results"
+                hx-swap="outerHTML"
+                aria-label="Filter by <%= s.skill_value %>">
+          <%= s.skill_value %>
+        </button>
+      <% }) %>
     </div>
     <% } %>
 
-    <% if (summaryItems && summaryItems.length > 0) { %>
-    <div class="summary-section">
-      <h4 class="summary-title">Key Responsibilities &amp; Achievements</h4>
-      <ul class="summary-list">
-        <% summaryItems.forEach(function(item) { %>
-          <li class="summary-item"><%= escapeHtml(item) %></li>
-        <% }) %>
-      </ul>
-    </div>
+    <% if (_hasSummary) { %>
+      <button class="tl-toggle"
+              hx-get="/api/position/<%= posId %>/card"
+              hx-target="#card-<%= posId %>"
+              hx-swap="outerHTML"
+              aria-expanded="false"
+              aria-label="Show highlights for <%= posTitle %>">
+        <span class="tl-toggle-icon" aria-hidden="true">▸</span>
+        Show <%= summaryItems.length %> highlight<%= summaryItems.length === 1 ? '' : 's' %>
+      </button>
     <% } %>
   </div>
 </article>

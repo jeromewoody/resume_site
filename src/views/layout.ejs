@@ -51,15 +51,21 @@
     })();
   </script>
   <script>
-    // Year range slider: prevent crossing, update fill, update labels
+    // Year range slider: prevent crossing, update fill, update labels.
+    // NOTE: this script sits in <head>, so element lookups must be deferred
+    // to DOMContentLoaded — grabbing them at parse time found nothing and
+    // silently disabled the whole widget.
     (function() {
-      var fromSlider = document.getElementById('year-from');
-      var toSlider = document.getElementById('year-to');
-      var fill = document.querySelector('.year-slider-fill');
-      var fromLabel = document.querySelector('.year-from-label');
-      var toLabel = document.querySelector('.year-to-label');
-      var rangeLabel = document.querySelector('.year-range-label');
-      var form = document.getElementById('filter-form');
+      var fromSlider, toSlider, fill, fromLabel, toLabel, rangeLabel, form;
+
+      function init() {
+        fromSlider = document.getElementById('year-from');
+        toSlider = document.getElementById('year-to');
+        fill = document.querySelector('.year-slider-fill');
+        fromLabel = document.querySelector('.year-from-label');
+        toLabel = document.querySelector('.year-to-label');
+        rangeLabel = document.querySelector('.year-range-label');
+        form = document.getElementById('filter-form');
 
       function updateSliderValues() {
         var fromVal = parseInt(fromSlider.value);
@@ -99,25 +105,53 @@
         fill.style.width = (toPct - fromPct) + '%';
       }
 
-      if (fromSlider && toSlider) {
-        fromSlider.addEventListener('input', function() {
-          updateSliderValues();
-          if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-        toSlider.addEventListener('input', function() {
-          updateSliderValues();
-          if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+      if (!fromSlider || !toSlider) return;
+      fromSlider.addEventListener('input', function() {
         updateSliderValues();
+        if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      toSlider.addEventListener('input', function() {
+        updateSliderValues();
+        if (form) form.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      updateSliderValues();
+
+      // Clear Filters: reset every control (sliders return to their default
+      // value attrs = full range), repaint, then re-run the filter. The
+      // button itself must NOT carry hx-post — it would serialize the
+      // still-moved sliders and re-apply the year filter.
+      var clearBtn = document.getElementById('clear-filters-btn');
+      if (clearBtn && form) {
+        clearBtn.addEventListener('click', function() {
+          form.reset();
+          updateSliderValues();
+          form.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
       }
     })();
   </script>
 </head>
 <body>
-   <div class="hatman-watermark" id="hatman-watermark" aria-hidden="true"></div>
    <div class="resume-container">
-     <%- include('header', { contact_info: contact_info, escapeHtml: escapeHtml }) %>
+     <%- include('header', { contact_info: contact_info }) %>
      <%- body %>
+     <footer class="site-footer">
+       <span class="footer-copy">© <%= new Date().getFullYear() %> Jerome Woody · Built with Node, EJS &amp; HTMX</span>
+       <% if (typeof xmlValid !== 'undefined' && xmlValid === true) { %>
+         <span class="xml-badge xml-badge--ok" title="resume.xml validated against resume.dtd with xmllint at server start">XML · DTD valid</span>
+       <% } else if (typeof xmlValid !== 'undefined' && xmlValid === false) { %>
+         <span class="xml-badge xml-badge--fail" title="xmllint reported DTD validity errors — run npm run validate-xml">DTD issues</span>
+       <% } else { %>
+         <span class="xml-badge xml-badge--na" title="xmllint not installed — validation skipped at server start">XML · not checked</span>
+       <% } %>
+     </footer>
      <script>
        // Highlight nav button for the current page
        (function() {

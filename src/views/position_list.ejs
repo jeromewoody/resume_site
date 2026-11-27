@@ -1,5 +1,24 @@
-<div id="results" class="positions-container">
+<%
+  // Timeline helpers (server-side; the list arrives newest-first).
+  var _now = new Date();
+  var _nowYm = _now.getFullYear() * 100 + (_now.getMonth() + 1);
+  function _ym(d) {
+    if (!d || !d.$) return null;
+    return parseInt(d.$.year, 10) * 100 + parseInt(d.$.month, 10);
+  }
+  // id of the most recently ended (or open) position — gets the "Most recent" node
+  var _latestId = null;
+  var _maxEndYm = null;
+  (positions || []).forEach(function(p) {
+    var ey = _ym(p.date_ended);
+    if (ey === null) ey = _nowYm;               // open-ended = today
+    if (_maxEndYm === null || ey > _maxEndYm) { _maxEndYm = ey; _latestId = p.$.position_id; }
+  });
+  var _lastYear = null;
+%>
+<div id="results" class="timeline">
   <% if (positions && positions.length > 0) { %>
+    <p class="results-count"><%= positions.length %> position<%= positions.length === 1 ? '' : 's' %></p>
     <% positions.forEach(function(pos) {
       // Extract position data
       var posId = pos.$.position_id;
@@ -28,8 +47,16 @@
       var companyName = getCompanyName(companyFk);
       var staffingName = getStaffingName(staffingFk);
 
-      // Render card
+      // Timeline state
+      var startYm = _ym(dateStarted);
+      var startY = startYm !== null ? Math.floor(startYm / 100) : null;
+      var endYm = _ym(dateEnded);
+      var isCurrent = endYm === null || endYm >= _nowYm;
+      var isLatest = posId === _latestId;
+      var showYear = startY !== null && startY !== _lastYear;
+      if (showYear) _lastYear = startY;
     %>
+      <% if (showYear) { %><div class="tl-year"><span><%= startY %></span></div><% } %>
       <%- include('position_card', {
         posId: posId,
         posTitle: posTitle,
@@ -39,7 +66,9 @@
         dateEnded: dateEnded,
         positionType: posType,
         skills: skills,
-        summaryItems: pos.summary_items
+        summaryItems: pos.summary_items,
+        isCurrent: isCurrent,
+        isLatest: isLatest
       }) %>
     <% }) %>
   <% } else { %>

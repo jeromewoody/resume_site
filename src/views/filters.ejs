@@ -25,7 +25,7 @@
         <% skills.forEach(function(s) { %>
           <label class="filter-label">
             <input type="checkbox" name="skill" value="<%= s.skill_id %>">
-            <%= escapeHtml(s.skill_value) %>
+            <%= s.skill_value %>
           </label>
         <% }) %>
       </div>
@@ -38,7 +38,7 @@
         <% companies.forEach(function(c) { %>
           <label class="filter-label">
             <input type="checkbox" name="company" value="<%= c.company_id %>">
-            <%= escapeHtml(c.company_name) %>
+            <%= c.company_name %>
           </label>
         <% }) %>
       </div>
@@ -89,10 +89,6 @@
       </div>
     </fieldset>
 
-    <button type="button" class="clear-filters-btn"
-            hx-post="/api/filter"
-            hx-target="#results"
-            hx-swap="outerHTML"
-            hx-push-url="true">Clear Filters</button>
+    <button type="button" class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button>
   </form>
 </aside>

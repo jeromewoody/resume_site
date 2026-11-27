@@ -1,27 +1,37 @@
 <header class="resume-header">
-  <div class="header-row">
-    <div class="hatman-avatar" id="hatman-avatar">
-      <img src="/images/hat-nyc-blue.png" alt="Jerome Woody" id="hatman-img">
+  <div class="hatman-watermark" id="hatman-watermark" aria-hidden="true"></div>
+  <div class="hero-main">
+    <div class="header-row">
+      <div class="hatman-avatar" id="hatman-avatar">
+        <img src="/images/hat-nyc-blue.png" alt="Jerome Woody" id="hatman-img">
+      </div>
+      <div class="hero-id">
+        <h1 class="person-name"><%= contact_info.name %></h1>
+        <div class="person-role">Web | Mobile | ML Ops</div>
+      </div>
     </div>
-    <div>
-      <h1 class="person-name"><%= escapeHtml(contact_info.name) %></h1>
-      <div class="person-role">Senior Frontend Engineer</div>
+    <div class="contact-info">
+      <a class="contact-link" href="mailto:<%= contact_info.email %>"><%= contact_info.email %></a>
+      <a class="contact-link" href="tel:<%= contact_info.phone.replace(/\D/g, '') %>"><%= contact_info.phone %></a>
     </div>
+    <% if (typeof stats !== 'undefined' && stats) { %>
+    <div class="hero-stats" role="list" aria-label="Career at a glance">
+      <span class="stat-chip" role="listitem"><strong><%= stats.years %></strong>&nbsp;yrs</span>
+      <span class="stat-chip" role="listitem"><strong><%= stats.positions %></strong>&nbsp;roles</span>
+      <span class="stat-chip" role="listitem"><strong><%= stats.skills %></strong>&nbsp;skills</span>
+    </div>
+    <% } %>
   </div>
-  <div class="contact-info">
-    <span class="contact-email"><%= escapeHtml(contact_info.email) %></span>
-    <span class="contact-phone"><%= escapeHtml(contact_info.phone) %></span>
+  <div class="hero-side">
+    <nav class="analytics-nav" aria-label="Site sections">
+      <a href="/">Resume</a>
+      <a href="/analytics/distribution">Analytics Dashboard</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Cycle theme">
+      <span class="theme-toggle-icon" id="theme-icon">☀️</span>
+      <span id="theme-label">Morning</span>
+    </button>
   </div>
-  <nav class="analytics-nav">
-    <a href="/">Resume</a>
-    <a href="/analytics/distribution">Analytics Dashboard</a>
-    <a href="/analytics/skills">Skills</a>
-    <a href="/analytics/timeline">Timeline</a>
-  </nav>
-  <button class="theme-toggle" id="theme-toggle" aria-label="Cycle theme">
-    <span class="theme-toggle-icon" id="theme-icon">☀️</span>
-    <span id="theme-label">Morning</span>
-  </button>
 </header>
 <script>
   // HatMan icon: swap color based on theme

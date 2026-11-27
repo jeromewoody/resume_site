@@ -24,12 +24,12 @@
 <article id="card-<%= posId %>" class="position-card position-card--expanded">
   <div class="position-content">
     <header class="position-header">
-      <h3 class="position-title"><%= escapeHtml(posTitle) %></h3>
+      <h3 class="position-title"><%= posTitle %></h3>
       <div class="position-company">
-        <span class="company-name"><%= escapeHtml(companyName) %></span>
+        <span class="company-name"><%= companyName %></span>
         <% if (staffingName) { %>
           <span class="staffing-separator">via</span>
-          <span class="staffing-name"><%= escapeHtml(staffingName) %></span>
+          <span class="staffing-name"><%= staffingName %></span>
         <% } %>
       </div>
     </header>
@@ -54,7 +54,7 @@
       <h4 class="skills-title">Technologies &amp; Skills</h4>
       <div class="skills-list">
         <% skills.forEach(function(s) { %>
-          <span class="skill-tag" hx-get="/api/positions/by-skill/<%= s.skill_id %>" hx-target="#results" hx-swap="outerHTML" style="cursor:pointer"><%= escapeHtml(s.skill_value) %></span>
+          <a class="skill-tag" href="/skill/<%= s.skill_id %>"><%= s.skill_value %></a>
         <% }) %>
       </div>
     </div>
@@ -65,19 +65,10 @@
       <h4 class="summary-title">Key Responsibilities &amp; Achievements</h4>
       <ul class="summary-list">
         <% position.summary_items.forEach(function(item) { %>
-          <li class="summary-item"><%= escapeHtml(item) %></li>
+          <li class="summary-item"><%= item %></li>
         <% }) %>
       </ul>
     </div>
     <% } %>
-
-    <div class="position-details-toggle">
-      <span class="details-link details-link--collapse"
-            hx-get="/api/position/<%= posId %>/summary"
-            hx-target="#card-<%= posId %>"
-            hx-swap="outerHTML">
-        &uarr; Show Less
-      </span>
-    </div>
   </div>
 </article>

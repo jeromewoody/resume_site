@@ -1,33 +1,14 @@
-<!-- Skills Overview Section -->
-<section class="skills-section">
-  <h2 class="section-title">Skills</h2>
-  <div class="skills-container" role="list">
-    <% skills.forEach(function(s) { %>
-      <button class="skill-item"
-              hx-get="/api/positions/by-skill/<%= s.skill_id %>"
-              hx-target="#results"
-              hx-swap="outerHTML"
-              role="listitem"
-              aria-label="Filter by <%= escapeHtml(s.skill_value) %>">
-        <%= escapeHtml(s.skill_value) %>
-      </button>
-    <% }) %>
-  </div>
-</section>
-
 <!-- Filter + Results Layout -->
 <div class="main-layout">
   <!-- Filter Sidebar -->
   <%- include('filters', {
     skills: skills,
     companies: companies,
-    escapeHtml: escapeHtml
   }) %>
 
   <!-- Results Area -->
   <%- include('position_list', {
     positions: positions,
-    escapeHtml: escapeHtml,
     formatDate: formatDate,
     formatType: formatType,
     getSkillsForPosition: getSkillsForPosition,

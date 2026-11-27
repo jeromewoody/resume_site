@@ -42,7 +42,7 @@
   --border-strong: rgba(148,163,184,.32);
   --text-1:        #f1f5f9;
   --text-2:        #94a3b8;
-  --text-3:        #64748b;
+  --text-3:        #8291a8;
   --accent:        #6366f1;
   --accent-2:      #22d3ee;
   --accent-soft:   rgba(99,102,241,.16);
@@ -115,16 +115,16 @@ body[data-period="night"] {
 }
 
 .hatman-watermark {
-  position: fixed;
-  top: -3vmin;
-  left: -3vmin;
-  width: 46vmin;
-  height: 46vmin;
+  position: absolute;
+  top: -8vmin;
+  right: -7vmin;
+  width: 40vmin;
+  height: 40vmin;
   background: var(--hatman-bg) no-repeat center / contain;
   opacity: var(--hatman-bg-opacity);
   pointer-events: none;      /* never intercepts clicks/selection */
   user-select: none;
-  z-index: -1;               /* sits above the page bg, behind all content */
+  z-index: 0;                /* inside the header's stacking context, behind hero content */
 }
 
 @media print {
@@ -449,9 +449,30 @@ a:hover {
  * ============================================================ */
 .resume-header {
   margin-bottom: 2.5rem;
-  padding-bottom: 1.25rem;
+  padding-bottom: 1.5rem;
   border-bottom: 2px solid var(--border);
   position: relative;
+  overflow: hidden;              /* clips the watermark crest to the hero, no page overflow */
+  isolation: isolate;            /* anchor for the hero watermark, keeps its ink on top */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.5rem 2rem;
+}
+
+.hero-main {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.hero-side {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
 }
 
 /* Accent underline */
@@ -528,12 +549,10 @@ a:hover {
 }
 
 /* ============================================================
- * Skills Section
+ * Skills Section — homepage cloud removed (skill filtering lives
+ * in the filter sidebar); .section-title and .skills-section kept
+ * for the analytics pages and the position-detail card.
  * ============================================================ */
-.skills-section {
-  margin-bottom: 3rem;
-}
-
 .section-title {
   font-size: 1.5rem;
   color: var(--text-1);
@@ -541,35 +560,6 @@ a:hover {
   font-weight: 700;
   font-family: var(--font-display);
   letter-spacing: -0.01em;
-}
-
-.skills-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.skill-item {
-  background-color: var(--accent-soft);
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
-  font-size: 0.875rem;
-  color: var(--accent-soft-text);
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
-}
-
-.skill-item:hover {
-  background: var(--accent);
-  color: var(--accent-contrast);
-  transform: translateY(-1px);
-}
-
-.skill-item:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
 }
 
 /* ============================================================
@@ -895,7 +885,6 @@ a:hover {
     padding: 1.25rem;
   }
 
-  .skills-container,
   .skills-list {
     gap: 0.4rem;
   }
@@ -920,7 +909,6 @@ a:hover {
     font-size: 1rem;
   }
 
-  .skill-item,
   .skill-tag {
     font-size: 0.8rem;
   }
@@ -937,7 +925,7 @@ a:hover {
 }
 
 .analytics-nav a {
-  background: var(--surface);
+  background: var(--surface-2);   /* solid on all themes — watermark must not bleed through */
   border: 1px solid var(--border);
   padding: 0.55rem 1.1rem;
   border-radius: var(--radius-sm);
@@ -1072,7 +1060,7 @@ a:hover {
   gap: 0.4rem;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-2);
   font-size: 0.75rem;
@@ -1114,28 +1102,11 @@ a:hover {
 }
 
 /* ============================================================
- * HatMan Watermark
+ * HatMan Watermark — now rendered as a single .hatman-watermark
+ * crest inside the hero header (see .resume-header). The old
+ * fixed body::before page-corner watermark was removed with the
+ * timeline redesign to avoid double watermarking.
  * ============================================================ */
-body::before {
-  content: '';
-  position: fixed;
-  right: -80px;
-  bottom: -120px;
-  width: 500px;
-  height: 500px;
-  background-image: url('/images/hat-nyc-gray.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 0;
-  transition: opacity 0.3s ease;
-}
-
-body.night-mode::before {
-  opacity: 0.05;
-}
 
 /* ============================================================
  * Print Styles
@@ -1178,5 +1149,323 @@ body.night-mode::before {
     content: " (" attr(href) ")";
     font-size: 0.75rem;
     opacity: 0.7;
+  }
+}
+/* ============================================================
+ * Hero: contact links, stat chips
+ * ============================================================ */
+.contact-link {
+  color: var(--text-2);
+  transition: color 0.15s ease;
+}
+
+.contact-link:hover {
+  color: var(--accent);
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.32rem 0.7rem;
+  box-shadow: var(--shadow-1);
+}
+
+.stat-chip strong {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+ * Timeline (P0 redesign) — vertical rail replacing the card stack
+ * ============================================================ */
+.results-count {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 1.1rem;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--border-strong) 0%, var(--border) 85%, transparent 100%);
+}
+
+/* Year node sitting on the rail */
+.tl-year {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 1.9rem 0 0.75rem;
+}
+
+.tl-year:first-child { margin-top: 0; }
+
+.tl-year::before {
+  content: '';
+  position: absolute;
+  left: calc(-2rem + 3px);
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-strong);
+}
+
+.tl-year span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-2);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Entry (row) */
+.tl-entry {
+  position: relative;
+  margin-bottom: 0.9rem;
+}
+
+.tl-dot {
+  position: absolute;
+  left: calc(-2rem + 2px);
+  top: 1.35rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-strong);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.tl-entry.is-latest .tl-dot,
+.tl-entry.is-current .tl-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.tl-entry.is-current .tl-dot {
+  animation: tl-pulse 2.4s ease-out infinite;
+}
+
+@keyframes tl-pulse {
+  0%   { box-shadow: 0 0 0 0 var(--ring); }
+  70%  { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.tl-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+  padding: 1.05rem 1.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tl-row:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.tl-entry.is-expanded .tl-row {
+  border-color: var(--accent);
+}
+
+.tl-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tl-entry .position-title {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.tl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.875rem;
+  color: var(--text-2);
+}
+
+.tl-meta time {
+  font-variant-numeric: tabular-nums;
+}
+
+.tl-sep {
+  color: var(--text-3);
+}
+
+/* Current / Most-recent flags */
+.tl-flag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 0.14rem 0.55rem;
+  border-radius: 999px;
+}
+
+.tl-flag--current {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.tl-flag--latest {
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
+}
+
+/* Row toggle (Show N highlights / Show less) */
+.tl-toggle {
+  margin-top: 0.6rem;
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tl-toggle:hover {
+  text-decoration: underline;
+}
+
+.tl-toggle-icon {
+  font-size: 0.7rem;
+}
+
+.tl-entry .skills-list {
+  margin-top: 0.7rem;
+}
+
+.tl-entry.is-expanded .summary-list {
+  margin: 0.75rem 0 0.25rem;
+}
+
+/* ============================================================
+ * Footer + XML/DTD badge
+ * ============================================================ */
+.site-footer {
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+
+.xml-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  cursor: default;
+}
+
+.xml-badge--ok {
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
+  border-color: var(--accent-soft-text);
+}
+
+.xml-badge--fail {
+  background: rgba(192, 57, 43, 0.13);
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.45);
+}
+
+.xml-badge--na {
+  color: var(--text-3);
+}
+
+/* ============================================================
+ * Responsive: timeline + hero
+ * ============================================================ */
+@media (max-width: 760px) {
+  .resume-header {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-side {
+    align-items: flex-start;
+  }
+
+  .timeline {
+    padding-left: 1.5rem;
+  }
+
+  .tl-dot { left: calc(-1.5rem + 2px); }
+  .tl-year::before { left: calc(-1.5rem + 3px); }
+
+  .hatman-watermark {
+    width: 62vmin;
+    height: 62vmin;
+    opacity: 0.07;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-entry.is-current .tl-dot {
+    animation: none;
+  }
+}
+
+@media print {
+  .timeline::before,
+  .tl-dot,
+  .tl-year::before { display: none; }
+
+  .timeline { padding-left: 0; }
+
+  .tl-row {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
   }
 }
